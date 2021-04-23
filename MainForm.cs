@@ -74,16 +74,16 @@ namespace RestTest
                                 this.baseIp.Text = preUrl.Trim();
                                 this.basePort.Text = lastList[2];
                                 this.webName.Text = lastList[3];
-                                this.requestMethod.Text = lastList[0];
+                                if(lastList[0] != null && this.requestMethod.Items.Contains(lastList[0].ToUpper())) this.requestMethod.Text = lastList[0];
                                 this.enableAllowAutoRedirect.Checked = HttpUtils.regexMatch(lastList[8], "false") ? false : true;
                                 this.contentTypeCombo.Text = lastList[5];
                                 this.acceptCombo.Text = lastList[7];
-                                this.encodeList.Text = lastList[6];
+                                if(lastList[6] != null && this.encodeList.Items.Contains(lastList[6])) this.encodeList.Text = lastList[6];
                                 this.postData.Text = lastList[4];
                                 string pre = HttpUtils.regexFindFirst(lastList[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)(:\\d+)?");
                                 string url = lastList[1].Replace(pre, "");
                                 if (lastList[3] != null && lastList[3].Length > 0) url = url.Replace(lastList[3], ""); 
-                                this.urlList.Items.Add(url);
+                                if(HttpUtils.isNotBlank(url)) this.urlList.Items.Add(url);
                                 this.urlList.Text = url;
                             }
                             catch (Exception err) {
@@ -108,7 +108,7 @@ namespace RestTest
                             string head = HttpUtils.regexFindFirst(li[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)(:\\d+)?");
                             string url = li[1].Replace(head, "");
                             if(li[3] != null && li[3].Length >0 ) url = url.Replace(li[3],"");
-                            this.urlList.Items.Add(url); 
+                            if (HttpUtils.isNotBlank(url) && !this.urlList.Items.Contains(url)) this.urlList.Items.Add(url); 
                         }
                         catch (Exception er)
                         {
