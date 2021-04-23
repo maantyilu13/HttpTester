@@ -54,6 +54,7 @@ namespace RestTest
             this.label3 = new System.Windows.Forms.Label();
             this.edtPassword = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button2 = new System.Windows.Forms.Button();
             this.cookieBox = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.enableAllowAutoRedirect = new System.Windows.Forms.CheckBox();
@@ -69,7 +70,7 @@ namespace RestTest
             this.label13 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.webName = new System.Windows.Forms.TextBox();
             this.labelPort = new System.Windows.Forms.Label();
             this.basePort = new System.Windows.Forms.TextBox();
             this.baseIp = new System.Windows.Forms.TextBox();
@@ -84,7 +85,6 @@ namespace RestTest
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.resultPanel = new System.Windows.Forms.Panel();
             this.requestResult = new System.Windows.Forms.RichTextBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.getParam_view)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -186,7 +186,7 @@ namespace RestTest
             this.panel1.Controls.Add(this.label13);
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.textBox1);
+            this.panel1.Controls.Add(this.webName);
             this.panel1.Controls.Add(this.btnTest);
             this.panel1.Controls.Add(this.labelPort);
             this.panel1.Controls.Add(this.basePort);
@@ -206,6 +206,16 @@ namespace RestTest
             this.panel1.Padding = new System.Windows.Forms.Padding(10, 10, 10, 0);
             this.panel1.Size = new System.Drawing.Size(919, 306);
             this.panel1.TabIndex = 9;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(660, 93);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 25;
+            this.button2.Text = "清除Cookie";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // cookieBox
             // 
@@ -362,12 +372,12 @@ namespace RestTest
             this.label5.TabIndex = 14;
             this.label5.Text = "基础URL";
             // 
-            // textBox1
+            // webName
             // 
-            this.textBox1.Location = new System.Drawing.Point(391, 27);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 21);
-            this.textBox1.TabIndex = 13;
+            this.webName.Location = new System.Drawing.Point(391, 27);
+            this.webName.Name = "webName";
+            this.webName.Size = new System.Drawing.Size(100, 21);
+            this.webName.TabIndex = 13;
             // 
             // labelPort
             // 
@@ -392,6 +402,7 @@ namespace RestTest
             this.baseIp.Size = new System.Drawing.Size(157, 21);
             this.baseIp.TabIndex = 10;
             this.baseIp.Text = "http://127.0.0.1";
+            this.baseIp.TextChanged += new System.EventHandler(this.baseIp_TextChanged);
             // 
             // label15
             // 
@@ -512,16 +523,6 @@ namespace RestTest
             this.requestResult.Text = "";
             this.requestResult.TextChanged += new System.EventHandler(this.edtResult_TextChanged);
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(660, 93);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 25;
-            this.button2.Text = "清除Cookie";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -553,7 +554,7 @@ namespace RestTest
         private System.Windows.Forms.TextBox basePort;
         private System.Windows.Forms.TextBox baseIp;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox webName;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.DataGridView getParam_view;
         private System.Windows.Forms.TextBox postData;

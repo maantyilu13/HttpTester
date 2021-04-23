@@ -24,10 +24,9 @@ namespace RestTest
 	{
         public static readonly Encoding DefaultEncoding = Encoding.UTF8;
         public static readonly string DefaultEncodingName = DefaultEncoding.HeaderName.ToUpper();
-        public static CookieContainer cookieContainer = null;
-        private static readonly string successFileUrl = Application.StartupPath + "\\HttpTestUrl.txt";
-        private static readonly string errorFileUrl = Application.StartupPath + "\\HttpTestError.log";
-
+        public static CookieContainer cookieContainer = null; 
+        private static readonly string errorFileUrl = Application.StartupPath + "\\HttpTesterError.log";
+        private static readonly string lastLogFileUrl = Application.UserAppDataPath + "\\HttpTester.log";
 
 
         public MainForm()
@@ -56,6 +55,70 @@ namespace RestTest
                 this.encodeList.Items.Add(encoding.GetEncoding().HeaderName);
             }
             this.encodeList.Text = "utf-8";
+            //加载请求记录到列表  
+            string[] urls = new string[] { };
+            try
+            {
+                urls = HttpUtils.readUrlFromFile(lastLogFileUrl);
+                if (urls != null && urls.Length > 0) {
+                    string last = urls[urls.Length - 1];
+                    string[] lastList = HttpUtils.regexSplit(last, "::");
+                    if (lastList.Length >= 9) {
+                        //初始化最后一条数据
+                        // method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect 
+                        string preUrl = HttpUtils.regexFindFirst(lastList[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)");
+                        if (HttpUtils.isNotBlank(preUrl))
+                        {
+                            try
+                            {
+                                this.baseIp.Text = preUrl.Trim();
+                                this.basePort.Text = lastList[2];
+                                this.webName.Text = lastList[3];
+                                this.requestMethod.Text = lastList[0];
+                                this.enableAllowAutoRedirect.Checked = HttpUtils.regexMatch(lastList[8], "false") ? false : true;
+                                this.contentTypeCombo.Text = lastList[5];
+                                this.acceptCombo.Text = lastList[7];
+                                this.encodeList.Text = lastList[6];
+                                this.postData.Text = lastList[4];
+                                string pre = HttpUtils.regexFindFirst(lastList[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)(:\\d+)?");
+                                string url = lastList[1].Replace(pre, "");
+                                if (lastList[3] != null && lastList[3].Length > 0) url = url.Replace(lastList[3], ""); 
+                                this.urlList.Items.Add(url);
+                                this.urlList.Text = url;
+                            }
+                            catch (Exception err) {
+                                Console.WriteLine(err);
+                            } 
+                    } 
+                    } 
+                }
+                HashSet<String> set = new HashSet<string>();
+                foreach (string str in urls)
+                {
+                    if (HttpUtils.isNotBlank(str)) set.Add(str); //先去重复请求
+                } 
+                //请求
+                foreach (String s in set)
+                {
+                    string[] li = HttpUtils.regexSplit(s, "::");
+                    if (li.Length >= 9)
+                    {
+                        try
+                        {
+                            string head = HttpUtils.regexFindFirst(li[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)(:\\d+)?");
+                            string url = li[1].Replace(head, "");
+                            if(li[3] != null && li[3].Length >0 ) url = url.Replace(li[3],"");
+                            this.urlList.Items.Add(url); 
+                        }
+                        catch (Exception er)
+                        {
+                            Console.WriteLine(er);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception e) {  } 
         }
 
         private static Encoding getEncodingByEncodeName(string encodeName)
@@ -74,7 +137,7 @@ namespace RestTest
 
 		private static string GeneralString(int n, string par)
 		{
-			System.Text.StringBuilder a = new System.Text.StringBuilder(n * par.Length);
+			StringBuilder a = new StringBuilder(n * par.Length);
 			for (int i=0;i<n;i++)
 			{
 				a.Append(par);
@@ -125,17 +188,15 @@ namespace RestTest
                     if (HttpUtils.regexMatch(basePort.Text, "^\\s*\\d+\\s*$"))
                     {
                          url += ":"+basePort.Text.Trim(); 
-                    } 
+                    }
+                    //添加app name
+                    if (HttpUtils.isNotBlank(this.webName.Text)) {
+                        url += "/"+HttpUtils.replace(this.webName.Text, "^\\s*/|\\s*$", "");
+                    }
                     //添加url
                     if (HttpUtils.isNotBlank(urlList.Text))
-                    {
-                        string uri = urlList.Text.Trim();
-                        if (uri.StartsWith("/"))
-                        {
-                            uri = uri.Substring(1);
-                            urlList.Text = uri;
-                        }
-                        url += "/" + uri;
+                    { 
+                        url += "/" + HttpUtils.replace(this.urlList.Text, "^\\s*/|\\s*$", "");
                     }
                 }
                 else
@@ -184,16 +245,17 @@ namespace RestTest
             //请求
             foreach (String s in set) { 
                 string[] li = HttpUtils.regexSplit(s,"::"); 
-                if (li.Length >= 7)
+                if (li.Length >= 9)
                 {
                     try
                     {
                         bool allowRedirect = true; 
-                        if (HttpUtils.isNotBlank(li[6]) && li[6].Trim().ToLower().Equals("false"))
+                        if (HttpUtils.isNotBlank(li[8]) && li[8].Trim().ToLower().Equals("false"))
                         {
                             allowRedirect = false;
-                        } 
-                        TestGetApi(li[1],li[0],li[3],li[2],li[4],li[5],allowRedirect);
+                        }
+                        //method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
+                        TestGetApi(li[1],li[0],li[5],li[4],li[6],li[7],allowRedirect);
                     }
                     catch (Exception er) {
                         MsgRequest(er.ToString());
@@ -328,16 +390,17 @@ namespace RestTest
                     this.cookieBox.AppendText(ck.Name + "=" + ck.Value);
                 }
                 //写入文件记录，用于后期载入文件  
-                HttpUtils.writeUrlToFile(successFileUrl, method, logUrl, data, contentType, encoding.HeaderName, null,allowAutoRedirect);
-            }
+                //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
+                HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
+                 }
             else {
                 //失败
                 MsgRequest("【失败】");
                 //记录错误日志
-                HttpUtils.writeLogToFile(errorFileUrl,result, method, logUrl, data, contentType, encoding.HeaderName, null, allowAutoRedirect);
+                HttpUtils.writeLogToFile(errorFileUrl,result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
             }
-            MsgResponse(result);  
+             MsgResponse(result);  
         }
 
         private void TestGetApi(string myUrl,string method,string  contentType,string  data,string  encodingName,string  accept,bool allowAutoRedirect) 
@@ -433,24 +496,24 @@ namespace RestTest
                 //成功
                 MsgRequest("【成功】");
 
-                this.cookieBox.Clear();
-                // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/");
+                this.cookieBox.Clear(); 
                 List<Cookie> list = HttpUtils.GetAllCookies(cookieContainer);
                 foreach (Cookie ck in list)
                 {
                     this.cookieBox.AppendText(ck.Name + "=" + ck.Value);
                 }
                 //写入文件记录，用于后期载入文件  
-                HttpUtils.writeUrlToFile(successFileUrl, method, logUrl, data, contentType, encoding.HeaderName, null, allowAutoRedirect);
-            }
+                //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
+                HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
+             }
             else
             {
                 //失败
                 MsgRequest("【失败】");
                 //记录错误日志
-                HttpUtils.writeLogToFile(errorFileUrl, result, method, logUrl, data, contentType, encoding.HeaderName, null, allowAutoRedirect);
+                HttpUtils.writeLogToFile(errorFileUrl, result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
-            }
+            } 
             MsgResponse(result);
         }
 
@@ -479,6 +542,11 @@ namespace RestTest
         {
             cookieContainer = null;
             this.cookieBox.Text = "";
+        }
+
+        private void baseIp_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

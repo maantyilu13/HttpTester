@@ -37,7 +37,7 @@ namespace RestTest
             return false;
         }
         public static String regexFindFirst(String str,String pattern) {
-            String result = null;
+            String result = "";
             if (str != null) {
                 Regex r = new Regex(pattern);
                 Match m = r.Match(str);
@@ -172,14 +172,20 @@ namespace RestTest
             File.WriteAllText(cookieFilePath, sbc.ToString(),Encoding.Default);
         }
 
-        public static void writeUrlToFile(string cookieFilePath, string method, string url, string data, string contentType, string encoding, string acceptType,bool isAllowRedirect)
+        public static void writeUrlToFile(string cookieFilePath, string method, string url,string port,string baseUrl, string data, string contentType, string encoding, string acceptType,bool isAllowRedirect,bool isAppend)
         {
             //将Url写入到文件，追加
             //每个请求一行记录
             StringBuilder sbc = new StringBuilder(); 
-            sbc.AppendFormat("{0}::{1}::{2}::{3}::{4}::{5}::{6}\r\n",
-                    method, url, data, contentType,encoding,acceptType,isAllowRedirect.ToString()); 
-            File.AppendAllText(cookieFilePath, sbc.ToString(), Encoding.Default);
+            sbc.AppendFormat("{0}::{1}::{2}::{3}::{4}::{5}::{6}::{7}::{8}\r\n",
+                    method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect.ToString());
+            if (isAppend)
+            {
+                File.AppendAllText(cookieFilePath, sbc.ToString(), Encoding.Default);
+            }
+            else {
+                    File.WriteAllText(cookieFilePath, sbc.ToString(), Encoding.Default);
+            }
         }
 
         public static void writeLogToFile(string cookieFilePath,string message, string method, string url, string data, string contentType, string encoding, string acceptType, bool isAllowRedirect)
@@ -199,7 +205,7 @@ namespace RestTest
         public static string[] readUrlFromFile(string urlFilePath)
         {
             //从文件中读取URL列表 
-            return File.ReadAllText(urlFilePath, Encoding.Default).Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            return File.ReadAllText(urlFilePath, Encoding.Default).Split("\r*\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
          }
     }
 }
