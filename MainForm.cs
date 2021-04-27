@@ -147,11 +147,10 @@ namespace RestTest
 		
 		private void MsgResponse(string sMsg)
 		{
-            if(sMsg != null)
-			if (sMsg.EndsWith("\r\n"))
-				responseResult.Text = sMsg;
-			else
-				responseResult.Text = sMsg + "\r\n";
+            if (sMsg != null) {
+                sMsg = HttpUtils.replace(sMsg,"^\\s*|\\s*$","");
+            } 
+			responseResult.Text = sMsg.Trim() + "\r\n";
 			responseResult.ScrollToCaret();
 		}
 
@@ -362,27 +361,29 @@ namespace RestTest
             WebResponse response = null;
             string result = "";
             string responseHead = "";
+            string responseBody = ""; 
             bool isSuccess = false;
             try
             {
                 response = myRequest.GetResponse(); 
                 using (StreamReader reader = new StreamReader(response.GetResponseStream(), encoding))
                     {
-                        //if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) { } 
-                        result = reader.ReadToEnd();
-                        responseHead = response.ResponseUri.ToString() + "\n" + response.Headers.ToString()+"---------------\n";
+                    //if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) { } 
+                        responseBody += reader.ReadToEnd();
+                        responseHead = response.ResponseUri.ToString() + "\r\n" + response.Headers.ToString();
                         if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) isSuccess = true; 
                     }
             }
-            catch (Exception error) { 
-                result += error.ToString();
-            } 
-            result =  responseHead + result; 
+            catch (Exception error) {
+                responseBody += error.ToString();
+            }
+            result += responseHead.Trim() + "\r\n";//添加头
+            result += "======================================================= 请求返回结果 -->>\r\n";
+            result += responseBody.Trim(); 
             if (isSuccess)
             {
                 //成功
-                MsgRequest("【成功】");
-               
+                MsgRequest("【成功】"); 
                 this.cookieBox.Clear(); 
                // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/");
                 List<Cookie> list = HttpUtils.GetAllCookies(cookieContainer);
@@ -400,7 +401,8 @@ namespace RestTest
                 HttpUtils.writeLogToFile(errorFileUrl,result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
             }
-             MsgResponse(result);  
+            if (!this.urlList.Items.Contains(this.urlList.Text.Trim())) this.urlList.Items.Add(this.urlList.Text.Trim());
+            MsgResponse(result);  
         }
 
         private void TestGetApi(string myUrl,string method,string  contentType,string  data,string  encodingName,string  accept,bool allowAutoRedirect) 
@@ -513,7 +515,8 @@ namespace RestTest
                 //记录错误日志
                 HttpUtils.writeLogToFile(errorFileUrl, result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
-            } 
+            }
+            if(!this.urlList.Items.Contains(this.urlList.Text.Trim()))this.urlList.Items.Add(this.urlList.Text.Trim());
             MsgResponse(result);
         }
 
@@ -547,6 +550,28 @@ namespace RestTest
         private void baseIp_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void urlList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+             
+        }
+
+        private void urlList_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) {
+                //回车触发发送请求
+                // --------------开始请求 ----------------- 
+                TestGetApi(createRequestUrl());
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.urlList.Text = "";
+            this.urlList.Items.Clear();
+            HttpUtils.deleteFile(lastLogFileUrl);
+            HttpUtils.deleteFile(errorFileUrl);
         }
     }
 }
