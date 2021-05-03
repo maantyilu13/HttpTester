@@ -6,7 +6,7 @@
  * 
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
-namespace RestTest
+namespace HttpTest
 {
 	partial class MainForm
 	{
@@ -54,6 +54,7 @@ namespace RestTest
             this.label3 = new System.Windows.Forms.Label();
             this.edtPassword = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.cookieBox = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
@@ -85,15 +86,18 @@ namespace RestTest
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.resultPanel = new System.Windows.Forms.Panel();
             this.requestResult = new System.Windows.Forms.RichTextBox();
-            this.button3 = new System.Windows.Forms.Button();
+            this.clearParam = new System.Windows.Forms.Button();
+            this.showImage = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.getParam_view)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.resultPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.showImage)).BeginInit();
             this.SuspendLayout();
             // 
             // responseResult
             // 
+            this.responseResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.responseResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.responseResult.Location = new System.Drawing.Point(273, 10);
             this.responseResult.Margin = new System.Windows.Forms.Padding(8);
@@ -172,6 +176,7 @@ namespace RestTest
             // panel1
             // 
             this.panel1.AutoSize = true;
+            this.panel1.Controls.Add(this.clearParam);
             this.panel1.Controls.Add(this.button3);
             this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.cookieBox);
@@ -209,6 +214,16 @@ namespace RestTest
             this.panel1.Padding = new System.Windows.Forms.Padding(10, 10, 10, 0);
             this.panel1.Size = new System.Drawing.Size(919, 306);
             this.panel1.TabIndex = 9;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(660, 125);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.TabIndex = 25;
+            this.button3.Text = "清理记录";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button2
             // 
@@ -508,6 +523,7 @@ namespace RestTest
             // 
             // resultPanel
             // 
+            this.resultPanel.Controls.Add(this.showImage);
             this.resultPanel.Controls.Add(this.responseResult);
             this.resultPanel.Controls.Add(this.requestResult);
             this.resultPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -519,6 +535,7 @@ namespace RestTest
             // 
             // requestResult
             // 
+            this.requestResult.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.requestResult.Dock = System.Windows.Forms.DockStyle.Left;
             this.requestResult.Location = new System.Drawing.Point(0, 10);
             this.requestResult.Name = "requestResult";
@@ -528,15 +545,26 @@ namespace RestTest
             this.requestResult.Text = "";
             this.requestResult.TextChanged += new System.EventHandler(this.edtResult_TextChanged);
             // 
-            // button3
+            // clearParam
             // 
-            this.button3.Location = new System.Drawing.Point(660, 125);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 25;
-            this.button3.Text = "清理记录";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.clearParam.Location = new System.Drawing.Point(67, 153);
+            this.clearParam.Name = "clearParam";
+            this.clearParam.Size = new System.Drawing.Size(87, 23);
+            this.clearParam.TabIndex = 25;
+            this.clearParam.Text = "清空拼接参数";
+            this.clearParam.UseVisualStyleBackColor = true;
+            this.clearParam.Click += new System.EventHandler(this.clearParam_Click);
+            // 
+            // showImage
+            // 
+            this.showImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.showImage.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.showImage.Location = new System.Drawing.Point(273, 265);
+            this.showImage.Name = "showImage";
+            this.showImage.Size = new System.Drawing.Size(636, 0);
+            this.showImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.showImage.TabIndex = 2;
+            this.showImage.TabStop = false;
             // 
             // MainForm
             // 
@@ -556,6 +584,8 @@ namespace RestTest
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.resultPanel.ResumeLayout(false);
+            this.resultPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.showImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -594,5 +624,7 @@ namespace RestTest
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button clearParam;
+        private System.Windows.Forms.PictureBox showImage;
     }
 }

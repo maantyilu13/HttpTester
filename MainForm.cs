@@ -7,6 +7,7 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -15,7 +16,7 @@ using System.Text;
 using System.Web;
 using System.Windows.Forms;
 
-namespace RestTest
+namespace HttpTest
 {
 	/// <summary>
 	/// Description of MainForm.
@@ -368,15 +369,49 @@ namespace RestTest
                 response = myRequest.GetResponse(); 
                 using (StreamReader reader = new StreamReader(response.GetResponseStream(), encoding))
                     {
-                    //if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) { } 
+                    //if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) { }
+                    string content_type = ((HttpWebResponse)response).GetResponseHeader("content-type");
+                    if (content_type.StartsWith("image/")) {
+                        System.Drawing.Image image = Image.FromStream(reader.BaseStream);
+                        responseBody += content_type;
+                        this.showImage.Image = image;  
+                    }else
+                    {
                         responseBody += reader.ReadToEnd();
-                        responseHead = response.ResponseUri.ToString() + "\r\n" + response.Headers.ToString();
+                    } 
+                        responseHead = "\r\n"+response.ResponseUri.ToString() + "\r\n" + response.Headers.ToString();
                         if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) isSuccess = true; 
                     }
             }
             catch (Exception error) {
                 responseBody += error.ToString();
             }
+            //写入request
+            string request = "";
+            try
+            {
+               WebHeaderCollection headers =  myRequest.Headers;
+                if (headers != null && headers.Count > 0) {
+                    for (int j = 0; j < headers.Count; j++) {
+                        string head = headers.GetKey(j);
+                        string value=headers.Get(head);   
+                        request += head + "=" + value+"\r\n";
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                MsgRequest(err.Message);
+            }
+            //cookie 
+            List<Cookie> list = HttpUtils.GetAllCookies(myRequest.CookieContainer);
+            foreach (Cookie ck in list) { 
+                if (ck.Domain == HttpUtils.regexFindFirst(myUrl, "(?i)https?://([\\da-z-_]+\\.)+[\\da-z-_]+")) {
+                    request += ck.Name + "=" + ck.Value + "\r\n";
+                }
+            }
+            result = request + "\r\n" + GeneralString(30, "*")+"\r\n";
+            //---------------
             result += responseHead.Trim() + "\r\n";//添加头
             result += "======================================================= 请求返回结果 -->>\r\n";
             result += responseBody.Trim(); 
@@ -385,8 +420,7 @@ namespace RestTest
                 //成功
                 MsgRequest("【成功】"); 
                 this.cookieBox.Clear(); 
-               // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/");
-                List<Cookie> list = HttpUtils.GetAllCookies(cookieContainer);
+               // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/"); 
                 foreach(Cookie ck in list) {
                     this.cookieBox.AppendText(ck.Name + "=" + ck.Value);
                 }
@@ -476,6 +510,7 @@ namespace RestTest
             WebResponse response = null;
             string result = "";
             string responseHead = "";
+            string responseBody = "";
             bool isSuccess = false;
             try
             {
@@ -483,23 +518,48 @@ namespace RestTest
                 using (StreamReader reader = new StreamReader(response.GetResponseStream(), encoding))
                 {
                     //if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) { } 
-                    result = reader.ReadToEnd();
-                    responseHead = response.ResponseUri.ToString() + "\n" + response.Headers.ToString() + "---------------\n";
+                    responseBody += reader.ReadToEnd();
+                    responseHead = "\r\n"+response.ResponseUri.ToString() + "\r\n" + response.Headers.ToString();
                     if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) isSuccess = true;
                 }
             }
             catch (Exception error)
             {
-                result += error.ToString();
+                responseBody += error.ToString();
             }
-            result = responseHead + result;
+            //写入request
+            string request = "";
+            try
+            {
+
+                using (StreamReader reader1 = new StreamReader(myRequest.GetRequestStream(), encoding))
+                {
+                    request = reader1.ReadToEnd();
+                }
+            }
+            catch (Exception err)
+            {
+                MsgRequest(err.Message);
+            }
+            //cookie 
+            List<Cookie> list = HttpUtils.GetAllCookies(myRequest.CookieContainer);
+            foreach (Cookie ck in list)
+            { 
+                if (ck.Domain == HttpUtils.regexFindFirst(myUrl, "(?i)https?://([\\da-z-_]+\\.)+[\\da-z-_]+"))
+                {
+                    request += ck.Name + "=" + ck.Value + "\r\n";
+                }
+            }
+            result = request + "\r\n" + GeneralString(30, "*")+ "\r\n";
+            //---------------
+            result += responseHead.Trim() + "\r\n";//添加头
+            result += "======================================================= 请求返回结果 -->>\r\n";
+            result += responseBody.Trim();
             if (isSuccess)
             {
                 //成功
-                MsgRequest("【成功】");
-
-                this.cookieBox.Clear(); 
-                List<Cookie> list = HttpUtils.GetAllCookies(cookieContainer);
+                MsgRequest("【成功】"); 
+                this.cookieBox.Clear();  
                 foreach (Cookie ck in list)
                 {
                     this.cookieBox.AppendText(ck.Name + "=" + ck.Value);
@@ -517,7 +577,7 @@ namespace RestTest
 
             }
             if(!this.urlList.Items.Contains(this.urlList.Text.Trim()))this.urlList.Items.Add(this.urlList.Text.Trim());
-            MsgResponse(result);
+            MsgResponse(result); 
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -572,6 +632,11 @@ namespace RestTest
             this.urlList.Items.Clear();
             HttpUtils.deleteFile(lastLogFileUrl);
             HttpUtils.deleteFile(errorFileUrl);
+        }
+
+        private void clearParam_Click(object sender, EventArgs e)
+        {
+            this.getParam_view.Rows.Clear();
         }
     }
 }

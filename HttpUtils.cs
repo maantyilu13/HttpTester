@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Windows.Forms;
 
-namespace RestTest
+namespace HttpTest
 {
 	/// <summary>
 	/// Description of HttpUtils.
@@ -84,6 +84,7 @@ namespace RestTest
                 }
                 request.UserAgent = DefaultUserAgent;
                 request.AllowAutoRedirect = allowAutoRedirect;
+                request.UseDefaultCredentials = true;
                 request.KeepAlive = true;
                 if (isNotBlank(contentType))
                 { 
@@ -98,8 +99,7 @@ namespace RestTest
                 }
                 else {
                     request.ContentType = "application/x-www-form-urlencoded;charset="+ encoding.HeaderName.ToUpper();
-                }
-
+                } 
                 //添加请求体数据
                 if (!isNotBlank(bodyData)) return request;
                 byte[] data = MainForm.DefaultEncoding.GetBytes(bodyData);
