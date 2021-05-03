@@ -54,6 +54,7 @@ namespace HttpTest
             this.label3 = new System.Windows.Forms.Label();
             this.edtPassword = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.clearParam = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.cookieBox = new System.Windows.Forms.TextBox();
@@ -85,9 +86,9 @@ namespace HttpTest
             this.postData = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.resultPanel = new System.Windows.Forms.Panel();
-            this.requestResult = new System.Windows.Forms.RichTextBox();
-            this.clearParam = new System.Windows.Forms.Button();
             this.showImage = new System.Windows.Forms.PictureBox();
+            this.requestResult = new System.Windows.Forms.RichTextBox();
+            this.label16 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.getParam_view)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -214,6 +215,16 @@ namespace HttpTest
             this.panel1.Padding = new System.Windows.Forms.Padding(10, 10, 10, 0);
             this.panel1.Size = new System.Drawing.Size(919, 306);
             this.panel1.TabIndex = 9;
+            // 
+            // clearParam
+            // 
+            this.clearParam.Location = new System.Drawing.Point(67, 153);
+            this.clearParam.Name = "clearParam";
+            this.clearParam.Size = new System.Drawing.Size(87, 23);
+            this.clearParam.TabIndex = 25;
+            this.clearParam.Text = "清空拼接参数";
+            this.clearParam.UseVisualStyleBackColor = true;
+            this.clearParam.Click += new System.EventHandler(this.clearParam_Click);
             // 
             // button3
             // 
@@ -509,6 +520,8 @@ namespace HttpTest
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label16);
+            this.groupBox1.Controls.Add(this.showImage);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.edtUser);
             this.groupBox1.Controls.Add(this.edtPassword);
@@ -523,7 +536,6 @@ namespace HttpTest
             // 
             // resultPanel
             // 
-            this.resultPanel.Controls.Add(this.showImage);
             this.resultPanel.Controls.Add(this.responseResult);
             this.resultPanel.Controls.Add(this.requestResult);
             this.resultPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -532,6 +544,16 @@ namespace HttpTest
             this.resultPanel.Padding = new System.Windows.Forms.Padding(0, 10, 10, 10);
             this.resultPanel.Size = new System.Drawing.Size(919, 275);
             this.resultPanel.TabIndex = 11;
+            // 
+            // showImage
+            // 
+            this.showImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.showImage.Location = new System.Drawing.Point(0, 181);
+            this.showImage.Name = "showImage";
+            this.showImage.Size = new System.Drawing.Size(168, 115);
+            this.showImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.showImage.TabIndex = 2;
+            this.showImage.TabStop = false;
             // 
             // requestResult
             // 
@@ -545,26 +567,14 @@ namespace HttpTest
             this.requestResult.Text = "";
             this.requestResult.TextChanged += new System.EventHandler(this.edtResult_TextChanged);
             // 
-            // clearParam
+            // label16
             // 
-            this.clearParam.Location = new System.Drawing.Point(67, 153);
-            this.clearParam.Name = "clearParam";
-            this.clearParam.Size = new System.Drawing.Size(87, 23);
-            this.clearParam.TabIndex = 25;
-            this.clearParam.Text = "清空拼接参数";
-            this.clearParam.UseVisualStyleBackColor = true;
-            this.clearParam.Click += new System.EventHandler(this.clearParam_Click);
-            // 
-            // showImage
-            // 
-            this.showImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.showImage.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.showImage.Location = new System.Drawing.Point(273, 265);
-            this.showImage.Name = "showImage";
-            this.showImage.Size = new System.Drawing.Size(636, 0);
-            this.showImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.showImage.TabIndex = 2;
-            this.showImage.TabStop = false;
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(2, 166);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(89, 12);
+            this.label16.TabIndex = 9;
+            this.label16.Text = "图片结果预览：";
             // 
             // MainForm
             // 
@@ -584,7 +594,6 @@ namespace HttpTest
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.resultPanel.ResumeLayout(false);
-            this.resultPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.showImage)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -626,5 +635,6 @@ namespace HttpTest
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button clearParam;
         private System.Windows.Forms.PictureBox showImage;
+        private System.Windows.Forms.Label label16;
     }
 }
