@@ -85,15 +85,17 @@ namespace HttpTest
             this.get_value = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.postData = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.resultPanel = new System.Windows.Forms.Panel();
-            this.showImage = new System.Windows.Forms.PictureBox();
-            this.requestResult = new System.Windows.Forms.RichTextBox();
             this.label16 = new System.Windows.Forms.Label();
+            this.showImage = new System.Windows.Forms.PictureBox();
+            this.resultPanel = new System.Windows.Forms.Panel();
+            this.requestResult = new System.Windows.Forms.RichTextBox();
+            this.referText = new System.Windows.Forms.TextBox();
+            this.label17 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.getParam_view)).BeginInit();
             this.groupBox1.SuspendLayout();
-            this.resultPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.showImage)).BeginInit();
+            this.resultPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // responseResult
@@ -520,6 +522,8 @@ namespace HttpTest
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label17);
+            this.groupBox1.Controls.Add(this.referText);
             this.groupBox1.Controls.Add(this.label16);
             this.groupBox1.Controls.Add(this.showImage);
             this.groupBox1.Controls.Add(this.label2);
@@ -534,16 +538,14 @@ namespace HttpTest
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "认证";
             // 
-            // resultPanel
+            // label16
             // 
-            this.resultPanel.Controls.Add(this.responseResult);
-            this.resultPanel.Controls.Add(this.requestResult);
-            this.resultPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.resultPanel.Location = new System.Drawing.Point(0, 306);
-            this.resultPanel.Name = "resultPanel";
-            this.resultPanel.Padding = new System.Windows.Forms.Padding(0, 10, 10, 10);
-            this.resultPanel.Size = new System.Drawing.Size(919, 275);
-            this.resultPanel.TabIndex = 11;
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(2, 166);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(89, 12);
+            this.label16.TabIndex = 9;
+            this.label16.Text = "图片结果预览：";
             // 
             // showImage
             // 
@@ -554,6 +556,17 @@ namespace HttpTest
             this.showImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.showImage.TabIndex = 2;
             this.showImage.TabStop = false;
+            // 
+            // resultPanel
+            // 
+            this.resultPanel.Controls.Add(this.responseResult);
+            this.resultPanel.Controls.Add(this.requestResult);
+            this.resultPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resultPanel.Location = new System.Drawing.Point(0, 306);
+            this.resultPanel.Name = "resultPanel";
+            this.resultPanel.Padding = new System.Windows.Forms.Padding(0, 10, 10, 10);
+            this.resultPanel.Size = new System.Drawing.Size(919, 275);
+            this.resultPanel.TabIndex = 11;
             // 
             // requestResult
             // 
@@ -567,14 +580,22 @@ namespace HttpTest
             this.requestResult.Text = "";
             this.requestResult.TextChanged += new System.EventHandler(this.edtResult_TextChanged);
             // 
-            // label16
+            // referText
             // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(2, 166);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(89, 12);
-            this.label16.TabIndex = 9;
-            this.label16.Text = "图片结果预览：";
+            this.referText.Location = new System.Drawing.Point(54, 79);
+            this.referText.Multiline = true;
+            this.referText.Name = "referText";
+            this.referText.Size = new System.Drawing.Size(108, 71);
+            this.referText.TabIndex = 26;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(6, 83);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(41, 12);
+            this.label17.TabIndex = 27;
+            this.label17.Text = "Refer:";
             // 
             // MainForm
             // 
@@ -593,8 +614,8 @@ namespace HttpTest
             ((System.ComponentModel.ISupportInitialize)(this.getParam_view)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.resultPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.showImage)).EndInit();
+            this.resultPanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -636,5 +657,7 @@ namespace HttpTest
         private System.Windows.Forms.Button clearParam;
         private System.Windows.Forms.PictureBox showImage;
         private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox referText;
     }
 }

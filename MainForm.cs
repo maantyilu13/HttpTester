@@ -348,6 +348,7 @@ namespace HttpTest
 				myRequest.Credentials = myCache;
 				myRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(encoding.GetBytes(user + ":" + pwd));
 			}
+            myRequest.Referer = HttpUtils.replace(this.referText.Text, "[\\s\\r\\n]", "");
             //处理cookie
             if (cookieContainer == null || cookieContainer.Count == 0)
             {
@@ -422,12 +423,15 @@ namespace HttpTest
                 this.cookieBox.Clear(); 
                // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/"); 
                 foreach(Cookie ck in list) {
-                    this.cookieBox.AppendText(ck.Name + "=" + ck.Value);
+                    this.cookieBox.AppendText(ck.Name + "=" + ck.Value+";");
                 }
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
                 HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
-                 }
+                if (method.ToLower().Trim().Equals("get")) {
+                    this.referText.Text = HttpUtils.replace(myUrl,"[\\r\\s\\n]","");
+                }
+            } 
             else {
                 //失败
                 MsgRequest("【失败】");
@@ -496,6 +500,7 @@ namespace HttpTest
                 myRequest.Credentials = myCache;
                 myRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(encoding.GetBytes(user + ":" + pwd));
             }
+            myRequest.Referer = HttpUtils.replace(this.referText.Text, "[\\s\\r\\n]", "");
             //处理cookie
             if (cookieContainer == null || cookieContainer.Count == 0)
             {
@@ -562,12 +567,16 @@ namespace HttpTest
                 this.cookieBox.Clear();  
                 foreach (Cookie ck in list)
                 {
-                    this.cookieBox.AppendText(ck.Name + "=" + ck.Value);
+                    this.cookieBox.AppendText(ck.Name + "=" + ck.Value+";");
                 }
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
                 HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
-             }
+                if (method.ToLower().Trim().Equals("get"))
+                {
+                    this.referText.Text = HttpUtils.replace(myUrl, "[\\r\\s\\n]", "");
+                }
+            }
             else
             {
                 //失败
