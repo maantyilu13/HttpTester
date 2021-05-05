@@ -85,12 +85,14 @@ namespace HttpTest
             this.get_value = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.postData = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.referText = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.showImage = new System.Windows.Forms.PictureBox();
             this.resultPanel = new System.Windows.Forms.Panel();
             this.requestResult = new System.Windows.Forms.RichTextBox();
-            this.referText = new System.Windows.Forms.TextBox();
-            this.label17 = new System.Windows.Forms.Label();
+            this.fixedRefer = new System.Windows.Forms.CheckBox();
+            this.log = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.getParam_view)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -106,7 +108,7 @@ namespace HttpTest
             this.responseResult.Margin = new System.Windows.Forms.Padding(8);
             this.responseResult.Name = "responseResult";
             this.responseResult.ReadOnly = true;
-            this.responseResult.Size = new System.Drawing.Size(636, 255);
+            this.responseResult.Size = new System.Drawing.Size(636, 243);
             this.responseResult.TabIndex = 1;
             this.responseResult.Text = "";
             this.responseResult.TextChanged += new System.EventHandler(this.edtResult_TextChanged);
@@ -522,8 +524,9 @@ namespace HttpTest
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label17);
             this.groupBox1.Controls.Add(this.referText);
+            this.groupBox1.Controls.Add(this.fixedRefer);
+            this.groupBox1.Controls.Add(this.label17);
             this.groupBox1.Controls.Add(this.label16);
             this.groupBox1.Controls.Add(this.showImage);
             this.groupBox1.Controls.Add(this.label2);
@@ -537,6 +540,23 @@ namespace HttpTest
             this.groupBox1.TabIndex = 17;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "认证";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(6, 83);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(41, 12);
+            this.label17.TabIndex = 27;
+            this.label17.Text = "Refer:";
+            // 
+            // referText
+            // 
+            this.referText.Location = new System.Drawing.Point(54, 79);
+            this.referText.Multiline = true;
+            this.referText.Name = "referText";
+            this.referText.Size = new System.Drawing.Size(108, 71);
+            this.referText.TabIndex = 26;
             // 
             // label16
             // 
@@ -561,6 +581,7 @@ namespace HttpTest
             // 
             this.resultPanel.Controls.Add(this.responseResult);
             this.resultPanel.Controls.Add(this.requestResult);
+            this.resultPanel.Controls.Add(this.log);
             this.resultPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.resultPanel.Location = new System.Drawing.Point(0, 306);
             this.resultPanel.Name = "resultPanel";
@@ -575,27 +596,32 @@ namespace HttpTest
             this.requestResult.Location = new System.Drawing.Point(0, 10);
             this.requestResult.Name = "requestResult";
             this.requestResult.ReadOnly = true;
-            this.requestResult.Size = new System.Drawing.Size(273, 255);
+            this.requestResult.Size = new System.Drawing.Size(273, 243);
             this.requestResult.TabIndex = 0;
             this.requestResult.Text = "";
             this.requestResult.TextChanged += new System.EventHandler(this.edtResult_TextChanged);
             // 
-            // referText
+            // fixedRefer
             // 
-            this.referText.Location = new System.Drawing.Point(54, 79);
-            this.referText.Multiline = true;
-            this.referText.Name = "referText";
-            this.referText.Size = new System.Drawing.Size(108, 71);
-            this.referText.TabIndex = 26;
+            this.fixedRefer.AutoSize = true;
+            this.fixedRefer.Location = new System.Drawing.Point(8, 102);
+            this.fixedRefer.Name = "fixedRefer";
+            this.fixedRefer.Size = new System.Drawing.Size(48, 16);
+            this.fixedRefer.TabIndex = 28;
+            this.fixedRefer.Text = "固定";
+            this.fixedRefer.UseVisualStyleBackColor = true;
             // 
-            // label17
+            // log
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(6, 83);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(41, 12);
-            this.label17.TabIndex = 27;
-            this.label17.Text = "Refer:";
+            this.log.AutoSize = true;
+            this.log.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.log.Location = new System.Drawing.Point(0, 253);
+            this.log.Margin = new System.Windows.Forms.Padding(0);
+            this.log.Name = "log";
+            this.log.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
+            this.log.Size = new System.Drawing.Size(58, 12);
+            this.log.TabIndex = 2;
+            this.log.Text = "message:";
             // 
             // MainForm
             // 
@@ -616,6 +642,7 @@ namespace HttpTest
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.showImage)).EndInit();
             this.resultPanel.ResumeLayout(false);
+            this.resultPanel.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -659,5 +686,7 @@ namespace HttpTest
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TextBox referText;
+        private System.Windows.Forms.CheckBox fixedRefer;
+        private System.Windows.Forms.Label log;
     }
 }

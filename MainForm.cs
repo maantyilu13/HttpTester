@@ -25,9 +25,10 @@ namespace HttpTest
 	{
         public static readonly Encoding DefaultEncoding = Encoding.UTF8;
         public static readonly string DefaultEncodingName = DefaultEncoding.HeaderName.ToUpper();
-        public static CookieContainer cookieContainer = null; 
-        private static readonly string errorFileUrl = Application.StartupPath + "\\HttpTesterError.log";
-        private static readonly string lastLogFileUrl = Application.UserAppDataPath + "\\HttpTester.log";
+        public static CookieContainer cookieContainer = null;
+        private static readonly string commonPath = HttpUtils.replace(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "(?i)[\\\\//]*documents[\\\\//]*$", "") + "\\HttpTester";
+        private static readonly string errorFileUrl = commonPath + "\\error.txt";
+        private static readonly string lastLogFileUrl = commonPath + "\\log.txt";
 
 
         public MainForm()
@@ -47,6 +48,12 @@ namespace HttpTest
             MessageBox.Show(obj.ToString());
         }
         private void AfterInitCompleted() {
+            //建立日志文件夹
+            this.log.Text = "日志目录:"+commonPath;
+            if (!Directory.Exists(commonPath))
+            {
+                Directory.CreateDirectory(commonPath);
+            }
             //设置请求方法默认值
             this.requestMethod.Text = this.requestMethod.Items[0].ToString();
             //设置content-type默认值
@@ -419,7 +426,8 @@ namespace HttpTest
             if (isSuccess)
             {
                 //成功
-                MsgRequest("【成功】"); 
+                MsgRequest("【成功】");
+                this.log.Text = "请求成功:" + myUrl;
                 this.cookieBox.Clear(); 
                // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/"); 
                 foreach(Cookie ck in list) {
@@ -428,13 +436,14 @@ namespace HttpTest
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
                 HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
-                if (method.ToLower().Trim().Equals("get")) {
+                if (!this.fixedRefer.Checked && method.ToLower().Trim().Equals("get")) {
                     this.referText.Text = HttpUtils.replace(myUrl,"[\\r\\s\\n]","");
                 }
             } 
             else {
                 //失败
                 MsgRequest("【失败】");
+                this.log.Text = "请求失败:" + myUrl;
                 //记录错误日志
                 HttpUtils.writeLogToFile(errorFileUrl,result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
@@ -563,7 +572,8 @@ namespace HttpTest
             if (isSuccess)
             {
                 //成功
-                MsgRequest("【成功】"); 
+                MsgRequest("【成功】");
+                this.log.Text = "请求成功:" + myUrl;
                 this.cookieBox.Clear();  
                 foreach (Cookie ck in list)
                 {
@@ -572,7 +582,7 @@ namespace HttpTest
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
                 HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
-                if (method.ToLower().Trim().Equals("get"))
+                if (!this.fixedRefer.Checked && method.ToLower().Trim().Equals("get"))
                 {
                     this.referText.Text = HttpUtils.replace(myUrl, "[\\r\\s\\n]", "");
                 }
@@ -581,6 +591,7 @@ namespace HttpTest
             {
                 //失败
                 MsgRequest("【失败】");
+                this.log.Text = "请求失败:"+ myUrl;
                 //记录错误日志
                 HttpUtils.writeLogToFile(errorFileUrl, result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
