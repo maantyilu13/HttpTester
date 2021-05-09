@@ -26,6 +26,7 @@ namespace HttpTest
         public static readonly Encoding DefaultEncoding = Encoding.UTF8;
         public static readonly string DefaultEncodingName = DefaultEncoding.HeaderName.ToUpper();
         public static CookieContainer cookieContainer = null;
+        private static string cookieString = "";
         private static readonly string commonPath = HttpUtils.replace(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "(?i)[\\\\//]*documents[\\\\//]*$", "") + "\\HttpTester";
         private static readonly string errorFileUrl = commonPath + "\\error.txt";
         private static readonly string lastLogFileUrl = commonPath + "\\log.txt";
@@ -355,7 +356,7 @@ namespace HttpTest
 				myRequest.Credentials = myCache;
 				myRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(encoding.GetBytes(user + ":" + pwd));
 			}
-            myRequest.Referer = HttpUtils.replace(this.referText.Text, "[\\s\\r\\n]", "");
+            myRequest.Referer = HttpUtils.replace(this.referText.Text, "[\\s\\r\\n]", ""); 
             //处理cookie
             if (cookieContainer == null || cookieContainer.Count == 0)
             {
@@ -364,7 +365,8 @@ namespace HttpTest
             }
             else
             {
-                myRequest.CookieContainer = cookieContainer;
+                if(cookieString.Trim().Length > 0) myRequest.Headers.Add("Cookie", cookieString.Trim()); 
+                myRequest.CookieContainer = cookieContainer;  
             }
 
             WebResponse response = null;
@@ -413,11 +415,17 @@ namespace HttpTest
             }
             //cookie 
             List<Cookie> list = HttpUtils.GetAllCookies(myRequest.CookieContainer);
+            cookieString = "";
             foreach (Cookie ck in list) { 
-                if (ck.Domain == HttpUtils.regexFindFirst(myUrl, "(?i)https?://([\\da-z-_]+\\.)+[\\da-z-_]+")) {
-                    request += ck.Name + "=" + ck.Value + "\r\n";
-                }
+                if (ck.Domain == HttpUtils.regexFindFirst(myUrl, "(?i)([\\da-z-_]+\\.)+[\\da-z-_]+"))
+                {
+                    //request += ck.Name + "=" + ck.Value + "\r\n";
+                    string _cookie = ck.Name + "=" + ck.Value + ";";
+                    if (!cookieString.Contains(_cookie)) cookieString += _cookie;
+                } 
             }
+            this.cookieBox.Clear();
+            this.cookieBox.AppendText(cookieString.Trim());
             result = request + "\r\n" + GeneralString(30, "*")+"\r\n";
             //---------------
             result += responseHead.Trim() + "\r\n";//添加头
@@ -427,12 +435,9 @@ namespace HttpTest
             {
                 //成功
                 MsgRequest("【成功】");
-                this.log.Text = "请求成功:" + myUrl;
-                this.cookieBox.Clear(); 
+                this.log.Text = "请求成功:" + myUrl; 
                // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/"); 
-                foreach(Cookie ck in list) {
-                    this.cookieBox.AppendText(ck.Name + "=" + ck.Value+";");
-                }
+              
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
                 HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
@@ -518,6 +523,7 @@ namespace HttpTest
             }
             else
             {
+                if (cookieString.Trim().Length > 0) myRequest.Headers.Add("Cookie", cookieString.Trim());
                 myRequest.CookieContainer = cookieContainer;
             }
 
@@ -544,8 +550,7 @@ namespace HttpTest
             //写入request
             string request = "";
             try
-            {
-
+            { 
                 using (StreamReader reader1 = new StreamReader(myRequest.GetRequestStream(), encoding))
                 {
                     request = reader1.ReadToEnd();
@@ -557,13 +562,18 @@ namespace HttpTest
             }
             //cookie 
             List<Cookie> list = HttpUtils.GetAllCookies(myRequest.CookieContainer);
+            cookieString = "";
             foreach (Cookie ck in list)
-            { 
-                if (ck.Domain == HttpUtils.regexFindFirst(myUrl, "(?i)https?://([\\da-z-_]+\\.)+[\\da-z-_]+"))
+            {  
+                if (ck.Domain == HttpUtils.regexFindFirst(myUrl, "(?i)([\\da-z-_]+\\.)+[\\da-z-_]+"))
                 {
                     request += ck.Name + "=" + ck.Value + "\r\n";
+                    string _cookie = ck.Name + "=" + ck.Value + ";";
+                    if(!cookieString.Contains(_cookie)) cookieString += _cookie;
                 }
             }
+            this.cookieBox.Clear();
+            this.cookieBox.AppendText(cookieString.Trim());
             result = request + "\r\n" + GeneralString(30, "*")+ "\r\n";
             //---------------
             result += responseHead.Trim() + "\r\n";//添加头
@@ -574,11 +584,7 @@ namespace HttpTest
                 //成功
                 MsgRequest("【成功】");
                 this.log.Text = "请求成功:" + myUrl;
-                this.cookieBox.Clear();  
-                foreach (Cookie ck in list)
-                {
-                    this.cookieBox.AppendText(ck.Name + "=" + ck.Value+";");
-                }
+                cookieBox.Clear();   
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
                 HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
@@ -624,7 +630,8 @@ namespace HttpTest
         private void button2_Click(object sender, EventArgs e)
         {
             cookieContainer = null;
-            this.cookieBox.Text = "";
+            cookieString = "";
+            this.cookieBox.Clear();
         }
 
         private void baseIp_TextChanged(object sender, EventArgs e)

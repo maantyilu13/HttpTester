@@ -85,13 +85,13 @@ namespace HttpTest
             this.get_value = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.postData = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label17 = new System.Windows.Forms.Label();
             this.referText = new System.Windows.Forms.TextBox();
+            this.fixedRefer = new System.Windows.Forms.CheckBox();
+            this.label17 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.showImage = new System.Windows.Forms.PictureBox();
             this.resultPanel = new System.Windows.Forms.Panel();
             this.requestResult = new System.Windows.Forms.RichTextBox();
-            this.fixedRefer = new System.Windows.Forms.CheckBox();
             this.log = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.getParam_view)).BeginInit();
@@ -541,6 +541,24 @@ namespace HttpTest
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "认证";
             // 
+            // referText
+            // 
+            this.referText.Location = new System.Drawing.Point(54, 79);
+            this.referText.Multiline = true;
+            this.referText.Name = "referText";
+            this.referText.Size = new System.Drawing.Size(108, 71);
+            this.referText.TabIndex = 26;
+            // 
+            // fixedRefer
+            // 
+            this.fixedRefer.AutoSize = true;
+            this.fixedRefer.Location = new System.Drawing.Point(8, 102);
+            this.fixedRefer.Name = "fixedRefer";
+            this.fixedRefer.Size = new System.Drawing.Size(48, 16);
+            this.fixedRefer.TabIndex = 28;
+            this.fixedRefer.Text = "固定";
+            this.fixedRefer.UseVisualStyleBackColor = true;
+            // 
             // label17
             // 
             this.label17.AutoSize = true;
@@ -549,14 +567,6 @@ namespace HttpTest
             this.label17.Size = new System.Drawing.Size(41, 12);
             this.label17.TabIndex = 27;
             this.label17.Text = "Refer:";
-            // 
-            // referText
-            // 
-            this.referText.Location = new System.Drawing.Point(54, 79);
-            this.referText.Multiline = true;
-            this.referText.Name = "referText";
-            this.referText.Size = new System.Drawing.Size(108, 71);
-            this.referText.TabIndex = 26;
             // 
             // label16
             // 
@@ -600,16 +610,6 @@ namespace HttpTest
             this.requestResult.TabIndex = 0;
             this.requestResult.Text = "";
             this.requestResult.TextChanged += new System.EventHandler(this.edtResult_TextChanged);
-            // 
-            // fixedRefer
-            // 
-            this.fixedRefer.AutoSize = true;
-            this.fixedRefer.Location = new System.Drawing.Point(8, 102);
-            this.fixedRefer.Name = "fixedRefer";
-            this.fixedRefer.Size = new System.Drawing.Size(48, 16);
-            this.fixedRefer.TabIndex = 28;
-            this.fixedRefer.Text = "固定";
-            this.fixedRefer.UseVisualStyleBackColor = true;
             // 
             // log
             // 
