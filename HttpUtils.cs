@@ -208,6 +208,12 @@ namespace HttpTest
             return File.ReadAllText(urlFilePath, Encoding.Default).Split("\r*\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
          }
 
+        public static string readFromFile(string urlFilePath)
+        {
+            //从文件中读取
+            return File.ReadAllText(urlFilePath, Encoding.Default);
+        }
+
         public static void deleteFile(string filePath) {
              //删除文件
              File.Delete(filePath);

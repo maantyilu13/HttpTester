@@ -28,9 +28,10 @@ namespace HttpTest
         public static CookieContainer cookieContainer = null;
         private static string cookieString = "";
         private static readonly string commonPath = HttpUtils.replace(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "(?i)[\\\\//]*documents[\\\\//]*$", "") + "\\HttpTester";
-        private static readonly string errorFileUrl = commonPath + "\\error.txt";
-        private static readonly string lastLogFileUrl = commonPath + "\\log.txt";
-
+        private static readonly string errFilePath = commonPath + "\\error.txt";//请求错误记录
+        private static readonly string logFilePath = commonPath + "\\log.txt";//日志
+        private static readonly string favourFilePath = commonPath + "\\favour.txt";//收藏夹
+        private static List<string> cacheUrl = new List<string>();//请求缓存
 
         public MainForm()
 		{
@@ -68,7 +69,7 @@ namespace HttpTest
             string[] urls = new string[] { };
             try
             {
-                urls = HttpUtils.readUrlFromFile(lastLogFileUrl);
+                urls = HttpUtils.readUrlFromFile(logFilePath);
                 if (urls != null && urls.Length > 0) {
                     string last = urls[urls.Length - 1];
                     string[] lastList = HttpUtils.regexSplit(last, "::");
@@ -227,10 +228,11 @@ namespace HttpTest
             //打开文件（链接文件）
 			string strTemp;
 			OpenFileDialog ofd = new OpenFileDialog();
+            ofd.InitialDirectory = @commonPath;
 	        ofd.Title = "选择文件(Open)";
 	        ofd.FileName = "";
 	        ofd.RestoreDirectory = true;
-	        ofd.Filter = "文本文件(*.txt)|*.txt|所有文件(*.*)|*.*";
+	        ofd.Filter = "文本文件(*.txt)|*.txt";
 	        ofd.ValidateNames = true;
 	        ofd.CheckFileExists = true;
 	        ofd.CheckPathExists = true;
@@ -272,6 +274,9 @@ namespace HttpTest
             }
         }
 
+        /**
+         *点击发送,发送api
+         */
         private void TestGetApi(string myUrl)
 		{
             string logUrl = "";
@@ -440,7 +445,7 @@ namespace HttpTest
               
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
-                HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
+                HttpUtils.writeUrlToFile(logFilePath, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
                 if (!this.fixedRefer.Checked && method.ToLower().Trim().Equals("get")) {
                     this.referText.Text = HttpUtils.replace(myUrl,"[\\r\\s\\n]","");
                 }
@@ -450,7 +455,7 @@ namespace HttpTest
                 MsgRequest("【失败】");
                 this.log.Text = "请求失败:" + myUrl;
                 //记录错误日志
-                HttpUtils.writeLogToFile(errorFileUrl,result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
+                HttpUtils.writeLogToFile(errFilePath,result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
             }
             if (!this.urlList.Items.Contains(this.urlList.Text.Trim())) this.urlList.Items.Add(this.urlList.Text.Trim());
@@ -587,7 +592,7 @@ namespace HttpTest
                 cookieBox.Clear();   
                 //写入文件记录，用于后期载入文件  
                 //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
-                HttpUtils.writeUrlToFile(lastLogFileUrl, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
+                HttpUtils.writeUrlToFile(logFilePath, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
                 if (!this.fixedRefer.Checked && method.ToLower().Trim().Equals("get"))
                 {
                     this.referText.Text = HttpUtils.replace(myUrl, "[\\r\\s\\n]", "");
@@ -599,7 +604,7 @@ namespace HttpTest
                 MsgRequest("【失败】");
                 this.log.Text = "请求失败:"+ myUrl;
                 //记录错误日志
-                HttpUtils.writeLogToFile(errorFileUrl, result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
+                HttpUtils.writeLogToFile(errFilePath, result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
 
             }
             if(!this.urlList.Items.Contains(this.urlList.Text.Trim()))this.urlList.Items.Add(this.urlList.Text.Trim());
@@ -657,13 +662,74 @@ namespace HttpTest
         {
             this.urlList.Text = "";
             this.urlList.Items.Clear();
-            HttpUtils.deleteFile(lastLogFileUrl);
-            HttpUtils.deleteFile(errorFileUrl);
+            HttpUtils.deleteFile(logFilePath);
+            HttpUtils.deleteFile(errFilePath); 
         }
 
         private void clearParam_Click(object sender, EventArgs e)
         {
             this.getParam_view.Rows.Clear();
+        }
+
+        //添加到收藏夹
+        private void saveRequestInfoToFile() { 
+            //ip
+            string ip = this.baseIp.Text.Trim();
+            string port = this.basePort.Text.Trim();
+            string baseUrl = this.webName.Text.Trim();
+            string encode = this.encodeList.Text.Trim();
+            string autoRedirect = this.enableAllowAutoRedirect.Checked ? "true":"false";
+            string contentType = this.contentTypeCombo.Text.Trim();
+            string method = this.requestMethod.Text.Trim();
+            string accept = this.acceptCombo.Text.Trim();
+            string url = this.urlList.Text.Trim();
+            string head = "";
+            for (int i = 0; i < this.getParam_view.Rows.Count; i++) {
+                head += "&"+this.getParam_view.Rows[i].Cells[0].Value.ToString().Trim();
+                head += "=" + this.getParam_view.Rows[i].Cells[1].Value.ToString().Trim();
+            }
+            string body = HttpUtils.replace(this.postData.Text.Trim(),"\\r\\n"," ");
+            string fixedRefer = this.fixedRefer.Checked ? "true" : "false";
+            string refer = this.referText.Text.Trim();
+            string user = this.edtUser.Text.Trim();
+            string pass = this.edtPassword.Text.Trim();
+            string[] arr = new string[]{ip,port,baseUrl,encode,autoRedirect,contentType,method,accept,url,head,body,fixedRefer,refer,user,pass};
+            string total = string.Join("::", arr) + "\r\n";
+            //保存到文件
+            File.AppendAllText(favourFilePath, total, Encoding.Default);
+        }
+        //加载收藏夹请求到列表
+        private void loadRequestInfoToFile() {
+           string[] urls = HttpUtils.readUrlFromFile(favourFilePath);
+           //加载到列表
+           cacheUrl.Clear();//先清空
+           //解析列表
+           //去重
+           //加载到urlList
+           //装载到缓存中
+           //默认选中第一个
+        }
+        //点击选取url
+        private void loadByUrl(string url) { 
+            //通过url加载
+        }
+        //清空收藏夹
+        private void clearFavour() {
+            HttpUtils.deleteFile(favourFilePath);
+        }
+        //从收藏夹删除
+        private void removeFromFile() {
+            string rem = this.urlList.Text.Trim();
+            rem = "::" + rem + "::";
+            //获取所有的
+            string all = HttpUtils.readFromFile(favourFilePath);
+            if (all != null) { 
+                //清理
+                string pattern = rem.Replace("?","\\?").Replace(".","\\.").Replace("*","\\*").Replace("{","\\{").Replace("}","\\}").Replace("+","\\+");
+                pattern = "(?!([\r\n]).)*" + pattern + "[^\r\n]*\r\n";
+                all  = HttpUtils.replace(all,pattern,"");
+                File.WriteAllText(favourFilePath, all, Encoding.Default);
+            }
         }
     }
 }

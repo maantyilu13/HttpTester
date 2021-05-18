@@ -282,7 +282,7 @@ namespace HttpTest
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(341, 67);
+            this.label12.Location = new System.Drawing.Point(506, 67);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(41, 12);
             this.label12.TabIndex = 21;
@@ -338,7 +338,7 @@ namespace HttpTest
             "application/vnd.ms-powerpoint",
             "application/msword",
             "*/*"});
-            this.acceptCombo.Location = new System.Drawing.Point(391, 64);
+            this.acceptCombo.Location = new System.Drawing.Point(569, 64);
             this.acceptCombo.Name = "acceptCombo";
             this.acceptCombo.Size = new System.Drawing.Size(166, 20);
             this.acceptCombo.TabIndex = 19;
@@ -360,9 +360,9 @@ namespace HttpTest
             // encodeList
             // 
             this.encodeList.FormattingEnabled = true;
-            this.encodeList.Location = new System.Drawing.Point(607, 64);
+            this.encodeList.Location = new System.Drawing.Point(556, 28);
             this.encodeList.Name = "encodeList";
-            this.encodeList.Size = new System.Drawing.Size(128, 20);
+            this.encodeList.Size = new System.Drawing.Size(64, 20);
             this.encodeList.TabIndex = 19;
             // 
             // requestMethod
@@ -375,15 +375,15 @@ namespace HttpTest
             "PUT",
             "DELETE",
             "HEAD"});
-            this.requestMethod.Location = new System.Drawing.Point(556, 27);
+            this.requestMethod.Location = new System.Drawing.Point(408, 64);
             this.requestMethod.Name = "requestMethod";
-            this.requestMethod.Size = new System.Drawing.Size(58, 20);
+            this.requestMethod.Size = new System.Drawing.Size(83, 20);
             this.requestMethod.TabIndex = 19;
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(572, 67);
+            this.label13.Location = new System.Drawing.Point(506, 32);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(29, 12);
             this.label13.TabIndex = 18;
@@ -392,7 +392,7 @@ namespace HttpTest
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(497, 31);
+            this.label7.Location = new System.Drawing.Point(340, 67);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(53, 12);
             this.label7.TabIndex = 18;
