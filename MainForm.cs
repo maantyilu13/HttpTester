@@ -1,10 +1,7 @@
-﻿/*
- * Created by SharpDevelop.
- * User: Kevin
- * Date: 2017/5/13
- * Time: 15:49
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
+﻿/* 
+ * Author yenbay
+ * Date 2017-09-22
+ * Good Luck!
  */
 using System;
 using System.Collections;
@@ -30,8 +27,7 @@ namespace HttpTest
         private static readonly string commonPath = HttpUtils.replace(System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "(?i)[\\\\//]*documents[\\\\//]*$", "") + "\\HttpTester";
         private static readonly string errFilePath = commonPath + "\\error.txt";//请求错误记录
         private static readonly string logFilePath = commonPath + "\\log.txt";//日志
-        private static readonly string favourFilePath = commonPath + "\\favour.txt";//收藏夹
-        private static List<string> cacheUrl = new List<string>();//请求缓存
+        private static readonly string favourFilePath = commonPath + "\\favour.txt";//收藏夹 
 
         public MainForm()
 		{
@@ -39,98 +35,48 @@ namespace HttpTest
 			// The InitializeComponent() call is required for Windows Forms designer support.
 			//
 			InitializeComponent();
-            //初始化完成后执行事件
-            AfterInitCompleted(); 
+            //init log file path
+            InitLogFilePath();
+            //init config
+            InitConfig();
+            //init favour 
+            loadRequestInfoToFile();
             //
             // TODO: Add constructor code after the InitializeComponent() call.
             //
         }
-
-        public static void alert(Object obj) {
-            MessageBox.Show(obj.ToString());
-        }
-        private void AfterInitCompleted() {
+       
+       
+        
+        private void InitLogFilePath() {
             //建立日志文件夹
-            this.log.Text = "日志目录:"+commonPath;
+            this.log.Text = "日志目录:" + commonPath;
             if (!Directory.Exists(commonPath))
             {
                 Directory.CreateDirectory(commonPath);
             }
+        }
+        //初始配置
+        private void InitConfig() {
             //设置请求方法默认值
             this.requestMethod.Text = this.requestMethod.Items[0].ToString();
             //设置content-type默认值
-            this.contentTypeCombo.Text = this.contentTypeCombo.Items[0].ToString(); 
-            //编码默认UTF8
-            foreach (EncodingInfo encoding in Encoding.GetEncodings()) {
-                this.encodeList.Items.Add(encoding.GetEncoding().HeaderName);
-            }
-            this.encodeList.Text = "utf-8";
-            //加载请求记录到列表  
-            string[] urls = new string[] { };
-            try
+            this.contentTypeCombo.Text = this.contentTypeCombo.Items[0].ToString();
+            //编码默认utf-8
+            foreach (EncodingInfo encoding in Encoding.GetEncodings())
             {
-                urls = HttpUtils.readUrlFromFile(logFilePath);
-                if (urls != null && urls.Length > 0) {
-                    string last = urls[urls.Length - 1];
-                    string[] lastList = HttpUtils.regexSplit(last, "::");
-                    if (lastList.Length >= 9) {
-                        //初始化最后一条数据
-                        // method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect 
-                        string preUrl = HttpUtils.regexFindFirst(lastList[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)");
-                        if (HttpUtils.isNotBlank(preUrl))
-                        {
-                            try
-                            {
-                                this.baseIp.Text = preUrl.Trim();
-                                this.basePort.Text = lastList[2];
-                                this.webName.Text = lastList[3];
-                                if(lastList[0] != null && this.requestMethod.Items.Contains(lastList[0].ToUpper())) this.requestMethod.Text = lastList[0];
-                                this.enableAllowAutoRedirect.Checked = HttpUtils.regexMatch(lastList[8], "false") ? false : true;
-                                this.contentTypeCombo.Text = lastList[5];
-                                this.acceptCombo.Text = lastList[7];
-                                if(lastList[6] != null && this.encodeList.Items.Contains(lastList[6])) this.encodeList.Text = lastList[6];
-                                this.postData.Text = lastList[4];
-                                string pre = HttpUtils.regexFindFirst(lastList[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)(:\\d+)?");
-                                string url = lastList[1].Replace(pre, "");
-                                if (lastList[3] != null && lastList[3].Length > 0) url = url.Replace(lastList[3], ""); 
-                                if(HttpUtils.isNotBlank(url)) this.urlList.Items.Add(url);
-                                this.urlList.Text = url;
-                            }
-                            catch (Exception err) {
-                                Console.WriteLine(err);
-                            } 
-                    } 
-                    } 
-                }
-                HashSet<String> set = new HashSet<string>();
-                foreach (string str in urls)
-                {
-                    if (HttpUtils.isNotBlank(str)) set.Add(str); //先去重复请求
-                } 
-                //请求
-                foreach (String s in set)
-                {
-                    string[] li = HttpUtils.regexSplit(s, "::");
-                    if (li.Length >= 9)
-                    {
-                        try
-                        {
-                            string head = HttpUtils.regexFindFirst(li[1], "(?i)^\\s*(https?://([^\\.:/]+\\.)+[^\\.:/]+)(:\\d+)?");
-                            string url = li[1].Replace(head, "");
-                            if(li[3] != null && li[3].Length >0 ) url = url.Replace(li[3],"");
-                            if (HttpUtils.isNotBlank(url) && !this.urlList.Items.Contains(url)) this.urlList.Items.Add(url); 
-                        }
-                        catch (Exception er)
-                        {
-                            Console.WriteLine(er);
-                        }
-                    }
-                }
-
-            }
-            catch (Exception e) {  } 
+                this.encodeList.Items.Add(encoding.GetEncoding().HeaderName);
+            } 
+            //初始化refer
+            /*
+            if (this.referText.Text.Trim().Length == 0)
+            {
+                string host = HttpUtils.regexMatch(this.baseIp.Text.Trim(), "(?i)https?") ? this.baseIp.Text.Trim() : "http://"+this.baseIp.Text.Trim();
+                if(this.basePort.Text.Trim().Length>0) host += ":"+this.basePort.Text.Trim(); 
+                this.referText.Text = host;
+            }*/
         }
-
+        
         private static Encoding getEncodingByEncodeName(string encodeName)
         {
             Encoding encode = null;
@@ -161,7 +107,10 @@ namespace HttpTest
                 sMsg = HttpUtils.replace(sMsg,"^\\s*|\\s*$","");
             } 
 			responseResult.Text = sMsg.Trim() + "\r\n";
-			responseResult.ScrollToCaret();
+            System.Threading.Thread.Sleep(200);
+            //responseResult.Select(this.responseResult.Text.Length,0);
+            responseResult.SelectionStart = responseResult.Text.Length; //Set the current caret position at the end
+			responseResult.ScrollToCaret(); 
 		}
 
         private void MsgRequest(string sMsg) {
@@ -169,7 +118,9 @@ namespace HttpTest
                 if (sMsg.EndsWith("\r\n"))
                     requestResult.AppendText(sMsg);
                 else
-                    requestResult.AppendText(sMsg + "\r\n");
+                    requestResult.AppendText(sMsg + "\r\n"); 
+            //requestResult.Select(this.requestResult.Text.Length, 0);
+            requestResult.SelectionStart = requestResult.Text.Length;
             requestResult.ScrollToCaret();
         }
 
@@ -210,7 +161,7 @@ namespace HttpTest
                 }
                 else
                 {
-                    MessageBox.Show("不合法的请求地址！");
+                    this.log.Text = "不合法的请求地址！";
                 }
             } 
             return url;
@@ -223,57 +174,60 @@ namespace HttpTest
 		}
 
 
-		void Button1Click(object sender, EventArgs e)
-		{
-            //打开文件（链接文件）
-			string strTemp;
-			OpenFileDialog ofd = new OpenFileDialog();
+        void Button1Click(object sender, EventArgs e)
+        { 
+            this.log.Text = "打开请求文件,执行批量请求!";
+            //打开文件（链接文件）//批量请求
+            string strTemp;
+            OpenFileDialog ofd = new OpenFileDialog();
             ofd.InitialDirectory = @commonPath;
-	        ofd.Title = "选择文件(Open)";
-	        ofd.FileName = "";
-	        ofd.RestoreDirectory = true;
-	        ofd.Filter = "文本文件(*.txt)|*.txt";
-	        ofd.ValidateNames = true;
-	        ofd.CheckFileExists = true;
-	        ofd.CheckPathExists = true;
-        	if (ofd.ShowDialog() == DialogResult.OK)
+            ofd.Title = "选择文件(Open)";
+            ofd.FileName = "";
+            ofd.RestoreDirectory = true;
+            ofd.Filter = "文本文件(*.txt)|*.txt";
+            ofd.ValidateNames = true;
+            ofd.CheckFileExists = true;
+            ofd.CheckPathExists = true;
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
                 StreamReader sr = new StreamReader(ofd.FileName, Encoding.Default);
                 strTemp = sr.ReadToEnd();
-                sr.Close();
+                sr.Close(); 
+                ofd.Dispose();
             }
-        	else
-        	{
-        		return;
-        	} 
-            //列表
-        	string[] UriList = HttpUtils.regexSplit(strTemp,"\r*\n");
-            HashSet<String> set = new HashSet<string>();
-        	foreach (string str in UriList) {
-                if(HttpUtils.isNotBlank(str)) set.Add(str); //先去重复请求
-        	}
-            //请求
-            foreach (String s in set) { 
-                string[] li = HttpUtils.regexSplit(s,"::"); 
-                if (li.Length >= 9)
+            else
+            {
+                return;
+            }
+            //////////////////////// 开始执行批量请求 //////////////// 
+            //先关闭自动收藏
+            bool enableAutoFavour = this.enableAutoFavour.Checked;
+            this.enableAutoFavour.Checked = false;
+            //
+            string[] records = HttpUtils.regexSplit(strTemp, "\r*\n+");
+            //过滤Url
+            if (records != null && records.Length > 0)
+            {
+                foreach (string record in records)
                 {
-                    try
+                    if (HttpUtils.isNotBlank(record))
                     {
-                        bool allowRedirect = true; 
-                        if (HttpUtils.isNotBlank(li[8]) && li[8].Trim().ToLower().Equals("false"))
-                        {
-                            allowRedirect = false;
-                        }
-                        //method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
-                        TestGetApi(li[1],li[0],li[5],li[4],li[6],li[7],allowRedirect);
+                        //加载一条
+                        loadOneRecord(record);
+                        //开启请求
+                        this.log.Text = "开始请求" + record;
+                        TestGetApi(createRequestUrl());
+                        //请求结束,等待3s
+                        System.Threading.Thread.Sleep(1000); 
                     }
-                    catch (Exception er) {
-                        MsgRequest(er.ToString());
-                    } 
-                }  
+                }
             }
+            //还原自动收藏状态
+            this.enableAutoFavour.Checked = enableAutoFavour;
+            this.log.Text = "批量请求结束!";
         }
 
+         
         /**
          *点击发送,发送api
          */
@@ -372,16 +326,19 @@ namespace HttpTest
             {
                 if(cookieString.Trim().Length > 0) myRequest.Headers.Add("Cookie", cookieString.Trim()); 
                 myRequest.CookieContainer = cookieContainer;  
-            }
-
+            } 
+            //发送请求 
             WebResponse response = null;
             string result = "";
             string responseHead = "";
             string responseBody = ""; 
             bool isSuccess = false;
+            DateTime start = DateTime.Now;
+            DateTime end = start;
             try
             {
                 response = myRequest.GetResponse(); 
+                end = DateTime.Now;
                 using (StreamReader reader = new StreamReader(response.GetResponseStream(), encoding))
                     {
                     //if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) { }
@@ -400,7 +357,8 @@ namespace HttpTest
             }
             catch (Exception error) {
                 responseBody += error.ToString();
-            }
+            } 
+            double timeCost = (end - start).TotalSeconds; //请求耗时秒数
             //写入request
             string request = "";
             try
@@ -436,181 +394,34 @@ namespace HttpTest
             result += responseHead.Trim() + "\r\n";//添加头
             result += "======================================================= 请求返回结果 -->>\r\n";
             result += responseBody.Trim(); 
+            string log = parseRecord()+"\r\n"+result; 
             if (isSuccess)
             {
                 //成功
-                MsgRequest("【成功】");
-                this.log.Text = "请求成功:" + myUrl; 
-               // MessageBox.Show(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/"); 
-              
-                //写入文件记录，用于后期载入文件  
-                //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
-                HttpUtils.writeUrlToFile(logFilePath, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
+                MsgRequest("【成功】" + "耗时" + timeCost+"秒");
+                this.log.Text = "请求成功("+timeCost+"s):" + myUrl; 
+                 //(HttpUtils.regexFindFirst(myUrl, "(?i)^https?://") + myRequest.Host+"/"); 
+                //更新refer
                 if (!this.fixedRefer.Checked && method.ToLower().Trim().Equals("get")) {
                     this.referText.Text = HttpUtils.replace(myUrl,"[\\r\\s\\n]","");
+                }
+                //如果开启自动收藏成功记录,加载收藏
+                if (this.enableAutoFavour.Checked) {
+                    saveRequestInfoToFile();
                 }
             } 
             else {
                 //失败
-                MsgRequest("【失败】");
-                this.log.Text = "请求失败:" + myUrl;
+                MsgRequest("【失败】" + "耗时" + timeCost + "秒");
+                this.log.Text = "请求失败("+timeCost+"s):" + myUrl;
                 //记录错误日志
-                HttpUtils.writeLogToFile(errFilePath,result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
-
+                HttpUtils.writeToFile(errFilePath,log,true); 
             }
-            if (!this.urlList.Items.Contains(this.urlList.Text.Trim())) this.urlList.Items.Add(this.urlList.Text.Trim());
+            //写入日志
+            HttpUtils.writeToFile(logFilePath,log,true);
             MsgResponse(result);  
         }
-
-        private void TestGetApi(string myUrl,string method,string  contentType,string  data,string  encodingName,string  accept,bool allowAutoRedirect) 
-        {
-            string logUrl = myUrl;
-            if (!HttpUtils.regexMatch(myUrl, HttpUtils.urlRegex))
-            {
-                MsgRequest(GeneralString(80, "*"));
-                MsgRequest(myUrl + "解析后不是有效的请求地址！");
-                return;
-            }
-            //判断认证信息
-            string user = "";
-            string pwd = "";
-            if (HttpUtils.isNotBlank(edtUser.Text) && HttpUtils.isNotBlank(edtPassword.Text))
-            {
-                user = edtUser.Text.Trim();
-                pwd = edtPassword.Text.Trim();
-            }
-            //content-type 
-            if (HttpUtils.isNotBlank(contentType))
-            {
-                contentType = contentType.Trim();
-                if (contentType.EndsWith(";")) contentType = contentType.Substring(0, contentType.Length - 1);
-            } 
-            //拼接参数 
-            Encoding encoding = getEncodingByEncodeName(encodingName);
-            if (encoding == null) encoding = DefaultEncoding;
-            //参数
-            string param = HttpUtils.regexFindFirst(myUrl,"\\?.+$");
-            if (HttpUtils.isNotBlank(param)) {
-                myUrl = myUrl.Replace(param,"");
-                myUrl += "?"+ HttpUtility.UrlEncode(param, encoding);
-            } 
-            //记录请求消息
-            MsgRequest(GeneralString(30, "*")); 
-            MsgRequest(method + "\t" + myUrl);
-            HttpWebRequest myRequest = null; 
-            if (method.ToLower().Trim().Equals("get"))
-            {
-                myRequest = HttpUtils.buildHeader(myUrl, method, contentType, null, encoding, accept, allowAutoRedirect);
-            }
-            else
-            {
-                if (HttpUtils.isNotBlank(postData.Text))
-                {
-                    data = postData.Text;
-                }
-                MsgRequest("DATA\t" + data);
-                myRequest = HttpUtils.buildHeader(myUrl, method, contentType, data, encoding, accept, allowAutoRedirect);
-            }
-            //添加其他信息
-            if (!string.IsNullOrEmpty(user))
-            {
-                CredentialCache myCache = new CredentialCache();
-                myCache.Add(new Uri(myUrl), "Basic", new NetworkCredential(user, pwd));
-                myRequest.Credentials = myCache;
-                myRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(encoding.GetBytes(user + ":" + pwd));
-            }
-            myRequest.Referer = HttpUtils.replace(this.referText.Text, "[\\s\\r\\n]", "");
-            //处理cookie
-            if (cookieContainer == null || cookieContainer.Count == 0)
-            {
-                myRequest.CookieContainer = new CookieContainer();
-                cookieContainer = myRequest.CookieContainer;
-            }
-            else
-            {
-                if (cookieString.Trim().Length > 0) myRequest.Headers.Add("Cookie", cookieString.Trim());
-                myRequest.CookieContainer = cookieContainer;
-            }
-
-            WebResponse response = null;
-            string result = "";
-            string responseHead = "";
-            string responseBody = "";
-            bool isSuccess = false;
-            try
-            {
-                response = myRequest.GetResponse();
-                using (StreamReader reader = new StreamReader(response.GetResponseStream(), encoding))
-                {
-                    //if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) { } 
-                    responseBody += reader.ReadToEnd();
-                    responseHead = "\r\n"+response.ResponseUri.ToString() + "\r\n" + response.Headers.ToString();
-                    if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) isSuccess = true;
-                }
-            }
-            catch (Exception error)
-            {
-                responseBody += error.ToString();
-            }
-            //写入request
-            string request = "";
-            try
-            { 
-                using (StreamReader reader1 = new StreamReader(myRequest.GetRequestStream(), encoding))
-                {
-                    request = reader1.ReadToEnd();
-                }
-            }
-            catch (Exception err)
-            {
-                MsgRequest(err.Message);
-            }
-            //cookie 
-            List<Cookie> list = HttpUtils.GetAllCookies(myRequest.CookieContainer);
-            cookieString = "";
-            foreach (Cookie ck in list)
-            {  
-                if (ck.Domain == HttpUtils.regexFindFirst(myUrl, "(?i)([\\da-z-_]+\\.)+[\\da-z-_]+"))
-                {
-                    request += ck.Name + "=" + ck.Value + "\r\n";
-                    string _cookie = ck.Name + "=" + ck.Value + ";";
-                    if(!cookieString.Contains(_cookie)) cookieString += _cookie;
-                }
-            }
-            this.cookieBox.Clear();
-            this.cookieBox.AppendText(cookieString.Trim());
-            result = request + "\r\n" + GeneralString(30, "*")+ "\r\n";
-            //---------------
-            result += responseHead.Trim() + "\r\n";//添加头
-            result += "======================================================= 请求返回结果 -->>\r\n";
-            result += responseBody.Trim();
-            if (isSuccess)
-            {
-                //成功
-                MsgRequest("【成功】");
-                this.log.Text = "请求成功:" + myUrl;
-                cookieBox.Clear();   
-                //写入文件记录，用于后期载入文件  
-                //file,method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect
-                HttpUtils.writeUrlToFile(logFilePath, method, logUrl, this.basePort.Text != null ? this.basePort.Text.ToString().Trim() : "", this.webName.Text != null ? this.webName.Text.ToString().Trim() : "", this.postData.Text, contentType, encoding.HeaderName, accept, allowAutoRedirect, true);
-                if (!this.fixedRefer.Checked && method.ToLower().Trim().Equals("get"))
-                {
-                    this.referText.Text = HttpUtils.replace(myUrl, "[\\r\\s\\n]", "");
-                }
-            }
-            else
-            {
-                //失败
-                MsgRequest("【失败】");
-                this.log.Text = "请求失败:"+ myUrl;
-                //记录错误日志
-                HttpUtils.writeLogToFile(errFilePath, result, method, logUrl, data, contentType, encoding.HeaderName, accept, allowAutoRedirect);
-
-            }
-            if(!this.urlList.Items.Contains(this.urlList.Text.Trim()))this.urlList.Items.Add(this.urlList.Text.Trim());
-            MsgResponse(result); 
-        }
-
+         
         private void MainForm_Load(object sender, EventArgs e)
         {
 
@@ -637,6 +448,7 @@ namespace HttpTest
             cookieContainer = null;
             cookieString = "";
             this.cookieBox.Clear();
+            this.log.Text = "清空Cookies!";
         }
 
         private void baseIp_TextChanged(object sender, EventArgs e)
@@ -662,8 +474,8 @@ namespace HttpTest
         {
             this.urlList.Text = "";
             this.urlList.Items.Clear();
-            HttpUtils.deleteFile(logFilePath);
-            HttpUtils.deleteFile(errFilePath); 
+            clearFavour();
+            this.log.Text = "清空收藏!";
         }
 
         private void clearParam_Click(object sender, EventArgs e)
@@ -671,65 +483,396 @@ namespace HttpTest
             this.getParam_view.Rows.Clear();
         }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
         //添加到收藏夹
         private void saveRequestInfoToFile() { 
+            //去掉旧的
+            removeFromFile(); 
+            //保存到文件
+            File.AppendAllText(favourFilePath, parseRecord(), Encoding.Default);
+            if (!this.urlList.Items.Contains(this.urlList.Text.Trim())) this.urlList.Items.Add(this.urlList.Text.Trim());
+        }
+
+        //转换当前为一条记录
+        private string parseRecord() {
             //ip
             string ip = this.baseIp.Text.Trim();
             string port = this.basePort.Text.Trim();
             string baseUrl = this.webName.Text.Trim();
             string encode = this.encodeList.Text.Trim();
-            string autoRedirect = this.enableAllowAutoRedirect.Checked ? "true":"false";
+            string autoRedirect = this.enableAllowAutoRedirect.Checked ? "true" : "false";
             string contentType = this.contentTypeCombo.Text.Trim();
             string method = this.requestMethod.Text.Trim();
             string accept = this.acceptCombo.Text.Trim();
             string url = this.urlList.Text.Trim();
             string head = "";
-            for (int i = 0; i < this.getParam_view.Rows.Count; i++) {
-                head += "&"+this.getParam_view.Rows[i].Cells[0].Value.ToString().Trim();
-                head += "=" + this.getParam_view.Rows[i].Cells[1].Value.ToString().Trim();
+            for (int i = 0; i < this.getParam_view.Rows.Count; i++)
+            {
+                if (this.getParam_view.Rows[i].Cells[0].Value != null)
+                {
+                    head += "&" + this.getParam_view.Rows[i].Cells[0].Value.ToString().Trim() + "=";
+                    if (this.getParam_view.Rows[i].Cells[1].Value != null)
+                        head += this.getParam_view.Rows[i].Cells[1].Value.ToString().Trim();
+                }
             }
-            string body = HttpUtils.replace(this.postData.Text.Trim(),"\\r\\n"," ");
+            string body = HttpUtils.replace(this.postData.Text.Trim(), "\\r\\n", " ");
             string fixedRefer = this.fixedRefer.Checked ? "true" : "false";
             string refer = this.referText.Text.Trim();
             string user = this.edtUser.Text.Trim();
             string pass = this.edtPassword.Text.Trim();
-            string[] arr = new string[]{ip,port,baseUrl,encode,autoRedirect,contentType,method,accept,url,head,body,fixedRefer,refer,user,pass};
-            string total = string.Join("::", arr) + "\r\n";
-            //保存到文件
-            File.AppendAllText(favourFilePath, total, Encoding.Default);
+            //数量为15
+            string[] arr = new string[] { ip, port, baseUrl, encode, autoRedirect, contentType, method, accept, url, head, body, fixedRefer, refer, user, pass };
+            return string.Join("::", arr) + "\r\n";
         }
-        //加载收藏夹请求到列表
+
+        //加载所有收藏夹
         private void loadRequestInfoToFile() {
-           string[] urls = HttpUtils.readUrlFromFile(favourFilePath);
-           //加载到列表
-           cacheUrl.Clear();//先清空
-           //解析列表
-           //去重
-           //加载到urlList
-           //装载到缓存中
-           //默认选中第一个
+           string[] records = HttpUtils.readUrlFromFile(favourFilePath);
+           string choose = null;
+           foreach (string record in records)
+           {
+               if (HttpUtils.isNotBlank(record))
+               {
+                   try
+                   {
+                       string[] r = HttpUtils.regexSplit(record, "::");
+                       //new string[]{ip,port,baseUrl,encode,autoRedirect,contentType,method,accept,url,head,body,fixedRefer,refer,user,pass};
+                       if (r.Length >= 15)
+                       {
+                           //有效
+                           choose = record;
+                           if (!this.urlList.Items.Contains(r[8])) this.urlList.Items.Add(r[8]);
+                       }
+                   }
+                   catch (Exception e)
+                   {
+                       this.log.Text = e.Message;
+                   }
+               }
+           }
+            //加载最后一个
+           loadOneRecord(choose);
+        } 
+
+        //加载一条收藏夹记录(具体的解析)
+        private void loadOneRecord(string record)
+        {
+            try
+            {
+                string[] r = HttpUtils.regexSplit(record, "::");
+                //new string[]{ip,port,baseUrl,encode,autoRedirect,contentType,method,accept,url,head,body,fixedRefer,refer,user,pass};
+                if (r.Length >= 15)
+                {
+                    this.baseIp.Text = r[0];
+                    this.basePort.Text = r[1];
+                    this.webName.Text = r[2];
+                    this.encodeList.Text = r[3];
+                    this.enableAllowAutoRedirect.Checked = r[4].Equals("true") ? true : false;
+                    this.contentTypeCombo.Text = r[5];
+                    this.requestMethod.Text = r[6];
+                    this.acceptCombo.Text = r[7];
+                    this.urlList.Text = r[8];
+                    string head = r[9];
+                    string[] headData = HttpUtils.regexSplit(head, "&");
+                    this.getParam_view.Rows.Clear();
+                    foreach (string _p in headData)
+                    {
+                        if (HttpUtils.isNotBlank(_p))
+                        {
+                            string name = HttpUtils.regexFindFirst(_p, "^[^=]+");
+                            string value = _p.Replace(name, "");
+                            if (HttpUtils.isNotBlank(name))
+                            {
+                                DataGridViewRow row = new DataGridViewRow();
+                                row.Cells[0].Value = name;
+                                row.Cells[1].Value = value;
+                                this.getParam_view.Rows.Add(row); 
+                            }
+                        }
+                    }
+                    this.postData.Text = r[10];
+                    this.fixedRefer.Checked = r[11].Equals("true") ? true : false;
+                    this.referText.Text = r[12];
+                    this.edtUser.Text = r[13];
+                    this.edtPassword.Text = r[14];
+                }
+            }catch(Exception e){
+                this.log.Text = e.Message;
+            }
         }
-        //点击选取url
-        private void loadByUrl(string url) { 
-            //通过url加载
+                
+        //通过url获取行完整url记录
+        private string getRowByUrl(string url) {
+            if (HttpUtils.isNotBlank(url))
+            { 
+                string[] urls = HttpUtils.readUrlFromFile(favourFilePath);//收藏夹中所有的记录 
+                if(urls != null) foreach (string _url in urls) {
+                    if (_url.Contains("::" + url.Trim() + "::")) { 
+                        //包含
+                        return _url;
+                    }
+                }
+            }
+            return null;
         }
+
         //清空收藏夹
         private void clearFavour() {
             HttpUtils.deleteFile(favourFilePath);
         }
+
         //从收藏夹删除
-        private void removeFromFile() {
-            string rem = this.urlList.Text.Trim();
-            rem = "::" + rem + "::";
-            //获取所有的
-            string all = HttpUtils.readFromFile(favourFilePath);
-            if (all != null) { 
-                //清理
-                string pattern = rem.Replace("?","\\?").Replace(".","\\.").Replace("*","\\*").Replace("{","\\{").Replace("}","\\}").Replace("+","\\+");
-                pattern = "(?!([\r\n]).)*" + pattern + "[^\r\n]*\r\n";
-                all  = HttpUtils.replace(all,pattern,"");
-                File.WriteAllText(favourFilePath, all, Encoding.Default);
+        private void removeFromFile() { 
+            string url = this.urlList.Text.Trim();
+            string port = this.basePort.Text.Trim(); 
+            string baseUrl = this.baseIp.Text.Trim();
+            string basePart = this.webName.Text.Trim();
+            string[] urls = HttpUtils.readUrlFromFile(favourFilePath);//收藏夹中所有的记录 
+            StringBuilder sb = new StringBuilder();//存储有用的
+            List<string> duplicateRemove = new List<string>();//用于过滤
+            if (urls != null) {
+                foreach (string _url in urls)
+                {
+                    if (!duplicateRemove.Contains(_url))
+                    {
+                        //没有重复 
+                        if (HttpUtils.regexMatch(url, "(?i)^https?\\://"))
+                        {
+                            if (!_url.Contains("::" + url + "::"))
+                            {
+                                 //不是删除项
+                                duplicateRemove.Add(_url);
+                                sb.Append(_url + "\r\n");
+                            }
+                        }else{
+                            if (!(_url.Contains("::" + url + "::") && _url.StartsWith(baseUrl + "::"+port+"::"+basePart+"::")))
+                            {
+                                //包含,则删除 
+                                 duplicateRemove.Add(_url);
+                                 sb.Append(_url + "\r\n");
+                            }
+                        }
+                    }  
+                }
+                //写入文件
+                File.WriteAllText(favourFilePath, sb.ToString(), Encoding.Default);
             }
+            if (this.urlList.Text.Trim().Length>0 && this.urlList.Items.Contains(this.urlList.Text.Trim())) this.urlList.Items.Remove(this.urlList.Text.Trim());
+        }
+ /////////////////////////////////////////////////////////////////////////////\
+       
+
+
+
+
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void edtUser_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void edtPassword_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cookieBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label14_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void enableAllowAutoRedirect_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label12_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void acceptCombo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void contentTypeCombo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void encodeList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void requestMethod_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label13_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void webName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void labelPort_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void basePort_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void getParam_view_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void postData_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void referText_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void fixedRefer_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label17_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label16_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void showImage_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void resultPanel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void log_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void urlList_SelectedValueChanged(object sender, EventArgs e)
+        {
+            //选取事件
+            if (this.urlList.Text.Trim().Length > 0)
+            {
+                loadOneRecord(getRowByUrl(this.urlList.SelectedText.Trim()));
+                this.log.Text = "加载URL" + this.urlList.SelectedText.Trim();
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            //添加到收藏 
+            saveRequestInfoToFile();
+           this.log.Text = "已收藏" + this.urlList.Text.Trim(); 
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            //取消收藏 
+           removeFromFile();
+           this.log.Text = "取消收藏" + this.urlList.Text.Trim(); 
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void enableAutoFavour_MouseHover(object sender, EventArgs e)
+        {
+
         }
     }
 }

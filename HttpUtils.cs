@@ -171,51 +171,35 @@ namespace HttpTest
             } 
             File.WriteAllText(cookieFilePath, sbc.ToString(),Encoding.Default);
         }
-
-        public static void writeUrlToFile(string cookieFilePath, string method, string url,string port,string baseUrl, string data, string contentType, string encoding, string acceptType,bool isAllowRedirect,bool isAppend)
+         
+        public static void writeToFile(string filePath,string content,bool isAppend)
         {
-            //将Url写入到文件，追加
-            //每个请求一行记录
-            StringBuilder sbc = new StringBuilder(); 
-            sbc.AppendFormat("{0}::{1}::{2}::{3}::{4}::{5}::{6}::{7}::{8}\r\n",
-                    method, url, port,baseUrl, data, contentType,encoding,acceptType,isAllowRedirect.ToString());
             if (isAppend)
             {
-                File.AppendAllText(cookieFilePath, sbc.ToString(), Encoding.Default);
+                File.AppendAllText(filePath, content, Encoding.Default);
             }
             else {
-                    File.WriteAllText(cookieFilePath, sbc.ToString(), Encoding.Default);
+                File.WriteAllText(filePath, content, Encoding.Default);
             }
-        }
-
-        public static void writeLogToFile(string cookieFilePath,string message, string method, string url, string data, string contentType, string encoding, string acceptType, bool isAllowRedirect)
-        {
-            //将Url写入到文件，追加
-            //每个请求一行记录
-            StringBuilder sbc = new StringBuilder();
-            sbc.Append("***********************************************************\r\n");
-            sbc.AppendFormat("{0}\r\n", DateTime.Now.ToLocalTime().ToString());
-            sbc.AppendFormat("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\r\n",
-                    method, url, data, contentType, encoding, acceptType, isAllowRedirect.ToString());
-            sbc.Append(message);
-            sbc.Append("\r\n"); 
-            File.AppendAllText(cookieFilePath, sbc.ToString(), Encoding.Default);
         }
 
         public static string[] readUrlFromFile(string urlFilePath)
         {
             //从文件中读取URL列表 
-            return File.ReadAllText(urlFilePath, Encoding.Default).Split("\r*\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-         }
+            if (File.Exists(urlFilePath)) return File.ReadAllText(urlFilePath, Encoding.Default).Split("\r*\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            return new string[]{};
+        }
 
         public static string readFromFile(string urlFilePath)
-        {
+        { 
             //从文件中读取
-            return File.ReadAllText(urlFilePath, Encoding.Default);
+           if(File.Exists(urlFilePath)) return File.ReadAllText(urlFilePath, Encoding.Default);
+           return "";
         }
 
         public static void deleteFile(string filePath) {
-             //删除文件
+            //删除文件
+            if(File.Exists(filePath)) 
              File.Delete(filePath);
         }
     }
