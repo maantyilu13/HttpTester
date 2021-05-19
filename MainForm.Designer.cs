@@ -60,6 +60,7 @@ namespace HttpTest
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.cookieBox = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
@@ -198,6 +199,7 @@ namespace HttpTest
             this.panel1.Controls.Add(this.button5);
             this.panel1.Controls.Add(this.button4);
             this.panel1.Controls.Add(this.button3);
+            this.panel1.Controls.Add(this.button6);
             this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.cookieBox);
             this.panel1.Controls.Add(this.label14);
@@ -238,8 +240,6 @@ namespace HttpTest
             // enableAutoFavour
             // 
             this.enableAutoFavour.AutoSize = true;
-            this.enableAutoFavour.Checked = true;
-            this.enableAutoFavour.CheckState = System.Windows.Forms.CheckState.Checked;
             this.enableAutoFavour.Location = new System.Drawing.Point(642, 49);
             this.enableAutoFavour.Name = "enableAutoFavour";
             this.enableAutoFavour.Size = new System.Drawing.Size(96, 16);
@@ -293,6 +293,17 @@ namespace HttpTest
             this.toolTip1.SetToolTip(this.button3, "清空收藏夹中的内容");
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(651, 141);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(75, 23);
+            this.button6.TabIndex = 25;
+            this.button6.Text = "清空日志";
+            this.toolTip1.SetToolTip(this.button6, "清空日志和错误记录");
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // button2
             // 
@@ -785,5 +796,6 @@ namespace HttpTest
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.CheckBox enableAutoFavour;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Button button6;
     }
 }

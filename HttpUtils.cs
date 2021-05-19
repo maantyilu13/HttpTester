@@ -23,7 +23,7 @@ namespace HttpTest
 	/// </summary>
 	public class HttpUtils
 	{ 
-        public static readonly string urlRegex = "^((ht|f)tps?):\\/\\/[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:\\/~\\+#]*[\\w\\-\\@?^=%&\\/~\\+#])?$";
+        public static readonly string urlRegex = "^((ht|f)tps?):\\/\\/[\\w\\-]+(\\.[\\w\\-]+)+([\\w\\-\\.,@?^=%&:\\/~\\+#]*[\\w\\-\\@?^=%&\\/~\\+#,])?$";
         private static readonly string DefaultAccept = "*/*;";
         //仿google chrome，提高兼容性,反防抓取
         private static readonly string DefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36";

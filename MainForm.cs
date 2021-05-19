@@ -235,7 +235,7 @@ namespace HttpTest
 		{
             string logUrl = "";
             if (!HttpUtils.regexMatch(myUrl, HttpUtils.urlRegex))
-            {
+            { 
                 MsgRequest(GeneralString(80, "*"));
                 MsgRequest(myUrl + "解析后不是有效的请求地址！");
                 return;
@@ -257,7 +257,10 @@ namespace HttpTest
             //allowAutoRedirect
             bool allowAutoRedirect = enableAllowAutoRedirect.Checked;
             String accept = this.acceptCombo.Text;
-
+            //refer
+            if (!this.fixedRefer.Checked && this.referText.Text.Trim().Length == 0) {
+                this.referText.Text = HttpUtils.regexFindFirst(myUrl,"(?i)https?://[^/]+");
+            }
             //拼接参数 
             logUrl = myUrl;//日志的URL
             Encoding encoding = getEncodingByEncodeName(this.encodeList.Text);
@@ -394,7 +397,8 @@ namespace HttpTest
             result += responseHead.Trim() + "\r\n";//添加头
             result += "======================================================= 请求返回结果 -->>\r\n";
             result += responseBody.Trim(); 
-            string log = parseRecord()+"\r\n"+result; 
+            string record = parseRecord();
+            string log =  (record != null ? record+"\r\n": "")+result; 
             if (isSuccess)
             {
                 //成功
@@ -471,8 +475,7 @@ namespace HttpTest
         }
 
         private void button3_Click(object sender, EventArgs e)
-        {
-            this.urlList.Text = "";
+        { 
             this.urlList.Items.Clear();
             clearFavour();
             this.log.Text = "清空收藏!";
@@ -488,9 +491,10 @@ namespace HttpTest
         //添加到收藏夹
         private void saveRequestInfoToFile() { 
             //去掉旧的
-            removeFromFile(); 
+            removeFromFile();  
             //保存到文件
-            File.AppendAllText(favourFilePath, parseRecord(), Encoding.Default);
+            string record  = parseRecord();
+            if (record != null && record.Trim().Length > 0) File.AppendAllText(favourFilePath, record, Encoding.Default);
             if (!this.urlList.Items.Contains(this.urlList.Text.Trim())) this.urlList.Items.Add(this.urlList.Text.Trim());
         }
 
@@ -523,7 +527,8 @@ namespace HttpTest
             string pass = this.edtPassword.Text.Trim();
             //数量为15
             string[] arr = new string[] { ip, port, baseUrl, encode, autoRedirect, contentType, method, accept, url, head, body, fixedRefer, refer, user, pass };
-            return string.Join("::", arr) + "\r\n";
+            if(arr!=null && arr.Length == 15) return string.Join("::", arr) + "\r\n";
+            return null;
         }
 
         //加载所有收藏夹
@@ -634,23 +639,29 @@ namespace HttpTest
             if (urls != null) {
                 foreach (string _url in urls)
                 {
-                    if (!duplicateRemove.Contains(_url))
-                    {
-                        //没有重复 
-                        if (HttpUtils.regexMatch(url, "(?i)^https?\\://"))
+                    string[] urlArr = HttpUtils.regexSplit(_url,"::");
+                    if (urlArr != null && urlArr.Length >= 15) {
+                        //有效链接
+                        if (!duplicateRemove.Contains(_url))
                         {
-                            if (!_url.Contains("::" + url + "::"))
+                            //没有重复 
+                            if (HttpUtils.regexMatch(url, "(?i)^https?\\://"))
                             {
-                                 //不是删除项
-                                duplicateRemove.Add(_url);
-                                sb.Append(_url + "\r\n");
+                                if (!_url.Contains("::" + url + "::"))
+                                {
+                                    //不是删除项
+                                    duplicateRemove.Add(_url);
+                                    sb.Append(_url + "\r\n");
+                                }
                             }
-                        }else{
-                            if (!(_url.Contains("::" + url + "::") && _url.StartsWith(baseUrl + "::"+port+"::"+basePart+"::")))
+                            else
                             {
-                                //包含,则删除 
-                                 duplicateRemove.Add(_url);
-                                 sb.Append(_url + "\r\n");
+                                if (!(_url.Contains("::" + url + "::") && _url.StartsWith(baseUrl + "::" + port + "::" + basePart + "::")))
+                                {
+                                    //包含,则删除 
+                                    duplicateRemove.Add(_url);
+                                    sb.Append(_url + "\r\n");
+                                }
                             }
                         }
                     }  
@@ -844,17 +855,18 @@ namespace HttpTest
         private void urlList_SelectedValueChanged(object sender, EventArgs e)
         {
             //选取事件
-            if (this.urlList.Text.Trim().Length > 0)
+            object sv = this.urlList.SelectedItem;
+            if (sv != null && sv.ToString().Trim().Length>0)
             {
-                loadOneRecord(getRowByUrl(this.urlList.SelectedText.Trim()));
-                this.log.Text = "加载URL" + this.urlList.SelectedText.Trim();
+                loadOneRecord(getRowByUrl(sv.ToString().Trim()));
+                this.log.Text = "加载URL请求:" + sv.ToString().Trim();
             }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             //添加到收藏 
-            saveRequestInfoToFile();
+           saveRequestInfoToFile();
            this.log.Text = "已收藏" + this.urlList.Text.Trim(); 
         }
 
@@ -873,6 +885,15 @@ namespace HttpTest
         private void enableAutoFavour_MouseHover(object sender, EventArgs e)
         {
 
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            //清空日志 
+            HttpUtils.deleteFile(logFilePath); 
+            //清空错误记录
+            HttpUtils.deleteFile(errFilePath);
+            this.log.Text = "清理日志文件!";
         }
     }
 }
